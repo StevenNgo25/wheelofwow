@@ -62,11 +62,11 @@ Mở file `script.js` và tìm đến hàm `showCongratulationsPopup`:
 
 ```javascript
 const prizeRewards = {
-    'giải đặc biệt': 'Máy sấy TOSHIBA',
-    'giải nhất': 'Loa Tháp Karaoke Samsung',
-    'giải nhì': 'Sưởi gốm Nagakawa',
-    'giải ba': 'Nồi chiên không dầu',
-    'giải khuyến khích': 'Phiếu mua hàng 100.000đ'
+    'giải đặc biệt': '',
+    'giải nhất': '',
+    'giải nhì': '',
+    'giải ba': '',
+    'giải khuyến khích': ''
 };
 ```
 

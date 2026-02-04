@@ -162,7 +162,15 @@ class LuckyDraw {
     
     updatePrizeDisplay() {
         const prizeTitle = document.querySelector('.current-prize');
-        prizeTitle.textContent = this.currentPrize.toUpperCase();
+        const prizes = ['giải đặc biệt', 'giải nhất', 'giải nhì', 'giải ba', 'giải khuyến khích'];
+        const prizeKeys = ['prizeSpecial', 'prizeFirst', 'prizeSecond', 'prizeThird', 'prizeConsolation'];
+        const prizeIndex = prizes.indexOf(this.currentPrize);
+        
+        if (prizeIndex >= 0) {
+            prizeTitle.textContent = languageManager.t(prizeKeys[prizeIndex]);
+        } else {
+            prizeTitle.textContent = this.currentPrize.toUpperCase();
+        }
     }
     
     navigatePrize(direction) {
@@ -230,9 +238,6 @@ class LuckyDraw {
         const randomIndex = Math.floor(Math.random() * this.remainingParticipants.length);
         const winner = this.remainingParticipants[randomIndex];
         
-        // Display winner number digit by digit with animation
-        this.displayWinnerNumber(winner);
-        
         // Remove winner from remaining participants
         this.remainingParticipants.splice(randomIndex, 1);
         
@@ -243,10 +248,10 @@ class LuckyDraw {
             prize: this.currentPrize
         });
         
-        // Update displays after all animations complete
-        // Total time = spinDuration + (5 digits * digitDelay)
-        const totalAnimationTime = this.settings.spinDuration * 1000 + (5 * this.settings.digitDelay * 1000);
-        setTimeout(() => {
+        // Display winner number digit by digit with animation
+        // Callback will be triggered when animation completes
+        this.displayWinnerNumber(winner, () => {
+            // Update displays after all animations complete
             this.updateParticipantsDisplay();
             this.updateWinnersList(true);
             this.celebrateWin();
@@ -259,10 +264,10 @@ class LuckyDraw {
             drawBtn.classList.remove('spinning');
             drawBtn.querySelector('span').textContent = languageManager.t('btnDraw');
             this.isSpinning = false;
-        }, totalAnimationTime);
+        });
     }
     
-    displayWinnerNumber(participant) {
+    displayWinnerNumber(participant, onComplete) {
         const code = typeof participant === 'object' ? (participant.code || participant.number) : participant;
         
         // Extract only the numeric part from the code (remove letters)
@@ -283,6 +288,13 @@ class LuckyDraw {
                 setTimeout(() => {
                     box.parentElement.classList.remove('winner');
                 }, 1500);
+                
+                // Call onComplete after last digit is displayed
+                if (index === this.numberBoxes.length - 1 && onComplete) {
+                    setTimeout(() => {
+                        onComplete();
+                    }, 500); // Small delay after last digit for visual effect
+                }
             }, index * baseDelay);
         });
     }
@@ -416,25 +428,32 @@ class LuckyDraw {
             spinDuration: 10,
             digitDelay: 2,
             prizeRewards: {
-                'giải đặc biệt': 'Máy sấy TOSHIBA',
-                'giải nhất': 'Loa Tháp Karaoke Samsung',
-                'giải nhì': 'Sưởi gốm Nagakawa',
-                'giải ba': 'Nồi chiên không dầu',
-                'giải khuyến khích': 'Phiếu mua hàng 100.000đ'
+                'giải đặc biệt': '',
+                'giải nhất': '',
+                'giải nhì': '',
+                'giải ba': '',
+                'giải khuyến khích': ''
             }
         };
         
         const saved = localStorage.getItem('luckydraw_settings');
         if (saved) {
             try {
-                return JSON.parse(saved);
+                const settings = JSON.parse(saved);
+                // Load saved settings into form
+                setTimeout(() => {
+                    this.loadSettingsToForm(settings);
+                }, 0);
+                return settings;
             } catch (e) {
                 return defaultSettings;
             }
         }
         
         // Load default values into form
-        this.loadSettingsToForm(defaultSettings);
+        setTimeout(() => {
+            this.loadSettingsToForm(defaultSettings);
+        }, 0);
         return defaultSettings;
     }
     
@@ -488,11 +507,11 @@ class LuckyDraw {
             spinDuration: 10,
             digitDelay: 2,
             prizeRewards: {
-                'giải đặc biệt': 'Máy sấy TOSHIBA',
-                'giải nhất': 'Loa Tháp Karaoke Samsung',
-                'giải nhì': 'Sưởi gốm Nagakawa',
-                'giải ba': 'Nồi chiên không dầu',
-                'giải khuyến khích': 'Phiếu mua hàng 100.000đ'
+                'giải đặc biệt': '',
+                'giải nhất': '',
+                'giải nhì': '',
+                'giải ba': '',
+                'giải khuyến khích': ''
             }
         };
         
