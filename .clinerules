@@ -1,0 +1,55 @@
+# AI Agent Rules for WheelOfWow Project
+
+## Communication
+- ALWAYS respond in Vietnamese (Tiếng Việt)
+- Use professional and clear Vietnamese language
+- Explain technical concepts in Vietnamese when discussing with user
+
+## SEO Requirements
+- All HTML files must include proper meta tags:
+  - meta description (150-160 characters)
+  - meta keywords
+  - Open Graph tags (og:title, og:description, og:image, og:url)
+  - Twitter Card tags
+  - canonical URL
+- Use semantic HTML5 tags (header, nav, main, section, article, footer)
+- Include proper heading hierarchy (h1, h2, h3...)
+- Add alt attributes to all images with descriptive text
+- Ensure proper title tags for each page
+- Use descriptive link text (avoid "click here")
+- Implement schema.org structured data where applicable
+- Optimize images (compress, use appropriate formats)
+- Ensure mobile-responsive design
+- Add sitemap.xml and robots.txt when needed
+- Use descriptive URL structures
+
+## Language Standards
+- Primary codebase language: English
+- All code comments: English
+- Variable names, function names, class names: English (camelCase/PascalCase)
+- File names: English (lowercase with hyphens)
+- Documentation in code: English
+- Git commit messages: English
+- User-facing content: Can be Vietnamese or English based on target audience
+- Console logs and error messages: English
+
+## Code Quality
+- Write clean, maintainable code
+- Follow web standards and best practices
+- Ensure cross-browser compatibility
+- Optimize performance (minimize CSS/JS, lazy loading)
+- Use modern JavaScript (ES6+)
+- Ensure accessibility (ARIA labels, keyboard navigation)
+- Validate HTML/CSS code
+
+## Project Structure
+- Keep HTML, CSS, and JavaScript files organized
+- Use meaningful file and folder names in English
+- Maintain consistent coding style
+- Comment complex logic in English
+
+## When Making Changes
+- Always explain changes in Vietnamese to the user
+- Ensure SEO best practices are maintained
+- Keep English naming conventions in code
+- Test responsiveness and accessibility
