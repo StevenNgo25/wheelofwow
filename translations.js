@@ -68,7 +68,26 @@ VNPT000002`,
         prizeFirstData: 'giải nhất',
         prizeSecondData: 'giải nhì',
         prizeThirdData: 'giải ba',
-        prizeConsolationData: 'giải khuyến khích'
+        prizeConsolationData: 'giải khuyến khích',
+        
+        // Settings section
+        settingsTitle: 'Cấu hình hệ thống',
+        timingSettings: 'Cài đặt thời gian',
+        prizeSettings: 'Danh sách giải thưởng',
+        spinDuration: 'Thời gian quay số (giây):',
+        digitDelay: 'Thời gian hiện từng số (giây):',
+        spinDurationHint: 'Thời gian chờ trước khi hiển thị kết quả',
+        digitDelayHint: 'Khoảng cách thời gian giữa các số kết quả',
+        prizeSpecialLabel: 'Giải đặc biệt:',
+        prizeFirstLabel: 'Giải nhất:',
+        prizeSecondLabel: 'Giải nhì:',
+        prizeThirdLabel: 'Giải ba:',
+        prizeConsolationLabel: 'Giải khuyến khích:',
+        prizePlaceholder: 'Nhập tên giải thưởng',
+        btnSaveSettings: 'Lưu cấu hình',
+        btnResetSettings: 'Khôi phục mặc định',
+        alertSettingsSaved: 'Đã lưu cấu hình thành công!',
+        alertSettingsReset: 'Đã khôi phục cấu hình mặc định!'
     },
     en: {
         // Header
@@ -138,7 +157,26 @@ VNPT000002`,
         prizeFirstData: 'first prize',
         prizeSecondData: 'second prize',
         prizeThirdData: 'third prize',
-        prizeConsolationData: 'consolation prize'
+        prizeConsolationData: 'consolation prize',
+        
+        // Settings section
+        settingsTitle: 'System Configuration',
+        timingSettings: 'Timing Settings',
+        prizeSettings: 'Prize Rewards List',
+        spinDuration: 'Spin duration (seconds):',
+        digitDelay: 'Digit display delay (seconds):',
+        spinDurationHint: 'Wait time before showing result',
+        digitDelayHint: 'Time interval between each result digit',
+        prizeSpecialLabel: 'Grand Prize:',
+        prizeFirstLabel: 'First Prize:',
+        prizeSecondLabel: 'Second Prize:',
+        prizeThirdLabel: 'Third Prize:',
+        prizeConsolationLabel: 'Consolation Prize:',
+        prizePlaceholder: 'Enter prize name',
+        btnSaveSettings: 'Save Configuration',
+        btnResetSettings: 'Reset to Default',
+        alertSettingsSaved: 'Configuration saved successfully!',
+        alertSettingsReset: 'Configuration reset to default!'
     }
 };
 
@@ -226,6 +264,55 @@ class LanguageManager {
         // Update footer
         const footer = document.querySelector('footer p');
         if (footer) footer.textContent = this.t('footerText');
+        
+        // Update settings section
+        const settingsTitle = document.querySelector('.settings-section h2');
+        if (settingsTitle) settingsTitle.textContent = this.t('settingsTitle');
+        
+        const timingTitle = document.querySelector('.settings-section .settings-group:first-child h3');
+        if (timingTitle) timingTitle.textContent = '⏱️ ' + this.t('timingSettings');
+        
+        const prizeTitle = document.querySelector('.settings-section .settings-group:last-child h3');
+        if (prizeTitle) prizeTitle.textContent = '🎁 ' + this.t('prizeSettings');
+        
+        // Update settings labels
+        const spinDurationLabel = document.querySelector('label[for="spin-duration"]');
+        if (spinDurationLabel) spinDurationLabel.textContent = this.t('spinDuration');
+        
+        const digitDelayLabel = document.querySelector('label[for="digit-delay"]');
+        if (digitDelayLabel) digitDelayLabel.textContent = this.t('digitDelay');
+        
+        const spinDurationHint = document.querySelector('label[for="spin-duration"]').nextElementSibling.nextElementSibling;
+        if (spinDurationHint) spinDurationHint.textContent = this.t('spinDurationHint');
+        
+        const digitDelayHint = document.querySelector('label[for="digit-delay"]').nextElementSibling.nextElementSibling;
+        if (digitDelayHint) digitDelayHint.textContent = this.t('digitDelayHint');
+        
+        // Update prize labels
+        const prizeLabels = [
+            { selector: 'label[for="prize-special"]', key: 'prizeSpecialLabel' },
+            { selector: 'label[for="prize-first"]', key: 'prizeFirstLabel' },
+            { selector: 'label[for="prize-second"]', key: 'prizeSecondLabel' },
+            { selector: 'label[for="prize-third"]', key: 'prizeThirdLabel' },
+            { selector: 'label[for="prize-consolation"]', key: 'prizeConsolationLabel' }
+        ];
+        
+        prizeLabels.forEach(({ selector, key }) => {
+            const label = document.querySelector(selector);
+            if (label) label.textContent = this.t(key);
+        });
+        
+        // Update prize placeholders
+        document.querySelectorAll('.settings-group input[type="text"]').forEach(input => {
+            input.placeholder = this.t('prizePlaceholder');
+        });
+        
+        // Update settings buttons
+        const saveBtn = document.getElementById('save-settings');
+        if (saveBtn) saveBtn.innerHTML = '💾 ' + this.t('btnSaveSettings');
+        
+        const resetBtn = document.getElementById('reset-settings');
+        if (resetBtn) resetBtn.innerHTML = '🔄 ' + this.t('btnResetSettings');
         
         // Update language selector active state
         document.querySelectorAll('.lang-btn').forEach(btn => {

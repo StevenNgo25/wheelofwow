@@ -8,6 +8,7 @@ class LuckyDraw {
         this.isSpinning = false;
         this.numberBoxes = document.querySelectorAll('.number');
         this.spinInterval = null;
+        this.settings = this.loadSettings();
         
         this.init();
     }
@@ -40,6 +41,17 @@ class LuckyDraw {
         // Navigation buttons
         document.querySelector('.btn-prev').addEventListener('click', () => this.navigatePrize(-1));
         document.querySelector('.btn-next').addEventListener('click', () => this.navigatePrize(1));
+        
+        // Settings buttons
+        const saveSettingsBtn = document.getElementById('save-settings');
+        if (saveSettingsBtn) {
+            saveSettingsBtn.addEventListener('click', () => this.saveSettings());
+        }
+        
+        const resetSettingsBtn = document.getElementById('reset-settings');
+        if (resetSettingsBtn) {
+            resetSettingsBtn.addEventListener('click', () => this.resetSettings());
+        }
     }
     
     loadFromLocalStorage() {
@@ -188,8 +200,8 @@ class LuckyDraw {
         // Start number rotation animation
         this.startNumberRotation();
         
-        // Stop after 10 seconds
-        const spinDuration = 10000;
+        // Stop after configured duration
+        const spinDuration = this.settings.spinDuration * 1000;
         
         setTimeout(() => {
             this.stopDraw();
@@ -231,8 +243,9 @@ class LuckyDraw {
             prize: this.currentPrize
         });
         
-        // Update displays 
-        // Total time = 10s (spin) + (5 * 2s) (last digit at index 5) = 20s
+        // Update displays after all animations complete
+        // Total time = spinDuration + (5 digits * digitDelay)
+        const totalAnimationTime = this.settings.spinDuration * 1000 + (5 * this.settings.digitDelay * 1000);
         setTimeout(() => {
             this.updateParticipantsDisplay();
             this.updateWinnersList(true);
@@ -246,7 +259,7 @@ class LuckyDraw {
             drawBtn.classList.remove('spinning');
             drawBtn.querySelector('span').textContent = languageManager.t('btnDraw');
             this.isSpinning = false;
-        }, 10000);
+        }, totalAnimationTime);
     }
     
     displayWinnerNumber(participant) {
@@ -256,8 +269,8 @@ class LuckyDraw {
         const numberPart = code.replace(/[^0-9]/g, '');
         const digits = numberPart.split('').slice(-6); // Get last 6 digits
         
-        // Fixed delay for each character to have consistent timing
-        const baseDelay = 2000; // 2 seconds per character
+        // Use configured delay for each character
+        const baseDelay = this.settings.digitDelay * 1000;
         
         this.numberBoxes.forEach((box, index) => {
             setTimeout(() => {
@@ -310,16 +323,8 @@ class LuckyDraw {
     }
     
     showCongratulationsPopup(winner) {
-        // Map prizes to rewards
-        const prizeRewards = {
-            'giải đặc biệt': 'Máy sấy TOSHIBA',
-            'giải nhất': 'Loa Tháp Karaoke Samsung',
-            'giải nhì': 'Sưởi gốm Nagakawa',
-            'giải ba': 'Nồi chiên không dầu',
-            'giải khuyến khích': 'Phiếu mua hàng 100.000đ'
-        };
-        
-        const reward = prizeRewards[winner.prize] || winner.prize.toUpperCase();
+        // Get reward from settings
+        const reward = this.settings.prizeRewards[winner.prize] || winner.prize.toUpperCase();
         
         // Create popup overlay
         const overlay = document.createElement('div');
@@ -404,6 +409,97 @@ class LuckyDraw {
                 }, 3000);
             }, i * 30);
         }
+    }
+    
+    loadSettings() {
+        const defaultSettings = {
+            spinDuration: 10,
+            digitDelay: 2,
+            prizeRewards: {
+                'giải đặc biệt': 'Máy sấy TOSHIBA',
+                'giải nhất': 'Loa Tháp Karaoke Samsung',
+                'giải nhì': 'Sưởi gốm Nagakawa',
+                'giải ba': 'Nồi chiên không dầu',
+                'giải khuyến khích': 'Phiếu mua hàng 100.000đ'
+            }
+        };
+        
+        const saved = localStorage.getItem('luckydraw_settings');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return defaultSettings;
+            }
+        }
+        
+        // Load default values into form
+        this.loadSettingsToForm(defaultSettings);
+        return defaultSettings;
+    }
+    
+    loadSettingsToForm(settings) {
+        const spinDurationInput = document.getElementById('spin-duration');
+        const digitDelayInput = document.getElementById('digit-delay');
+        
+        if (spinDurationInput) spinDurationInput.value = settings.spinDuration;
+        if (digitDelayInput) digitDelayInput.value = settings.digitDelay;
+        
+        // Load prize rewards
+        const prizeInputs = {
+            'giải đặc biệt': document.getElementById('prize-special'),
+            'giải nhất': document.getElementById('prize-first'),
+            'giải nhì': document.getElementById('prize-second'),
+            'giải ba': document.getElementById('prize-third'),
+            'giải khuyến khích': document.getElementById('prize-consolation')
+        };
+        
+        Object.keys(prizeInputs).forEach(key => {
+            if (prizeInputs[key] && settings.prizeRewards[key]) {
+                prizeInputs[key].value = settings.prizeRewards[key];
+            }
+        });
+    }
+    
+    saveSettings() {
+        const spinDuration = parseFloat(document.getElementById('spin-duration').value);
+        const digitDelay = parseFloat(document.getElementById('digit-delay').value);
+        
+        const prizeRewards = {
+            'giải đặc biệt': document.getElementById('prize-special').value,
+            'giải nhất': document.getElementById('prize-first').value,
+            'giải nhì': document.getElementById('prize-second').value,
+            'giải ba': document.getElementById('prize-third').value,
+            'giải khuyến khích': document.getElementById('prize-consolation').value
+        };
+        
+        this.settings = {
+            spinDuration,
+            digitDelay,
+            prizeRewards
+        };
+        
+        localStorage.setItem('luckydraw_settings', JSON.stringify(this.settings));
+        alert(languageManager.t('alertSettingsSaved'));
+    }
+    
+    resetSettings() {
+        const defaultSettings = {
+            spinDuration: 10,
+            digitDelay: 2,
+            prizeRewards: {
+                'giải đặc biệt': 'Máy sấy TOSHIBA',
+                'giải nhất': 'Loa Tháp Karaoke Samsung',
+                'giải nhì': 'Sưởi gốm Nagakawa',
+                'giải ba': 'Nồi chiên không dầu',
+                'giải khuyến khích': 'Phiếu mua hàng 100.000đ'
+            }
+        };
+        
+        this.settings = defaultSettings;
+        this.loadSettingsToForm(defaultSettings);
+        localStorage.setItem('luckydraw_settings', JSON.stringify(this.settings));
+        alert(languageManager.t('alertSettingsReset'));
     }
 }
 
