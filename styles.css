@@ -24,6 +24,35 @@ body {
     overflow-x: hidden;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(26, 26, 46, 0.5);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    border: 2px solid rgba(26, 26, 46, 0.5);
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--secondary-color), var(--gold));
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) rgba(26, 26, 46, 0.5);
+}
+
 /* Header Styles */
 header {
     background: rgba(26, 26, 46, 0.95);
@@ -286,6 +315,7 @@ header {
     justify-content: center;
     align-items: center;
     margin-top: 2rem;
+    position: relative;
 }
 
 .btn-prev,
@@ -391,6 +421,26 @@ header {
     gap: 1rem;
     max-height: 400px;
     overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.winners-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.winners-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.winners-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--gold), var(--secondary-color));
+    border-radius: 10px;
+}
+
+.winners-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--secondary-color), var(--primary-color));
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
 .winner-item {
@@ -543,7 +593,7 @@ header {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 2rem;
     margin-bottom: 2rem;
 }
@@ -739,8 +789,102 @@ footer {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
     letter-spacing: 3px;
+}
+
+.popup-subtitle {
+    font-size: 1.3rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.popup-count {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.popup-winners-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 1.5rem 0;
+    padding: 0.5rem;
+    padding-right: 1rem;
+}
+
+.popup-winners-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.popup-winners-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.popup-winners-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--gold), var(--secondary-color));
+    border-radius: 10px;
+    border: 1px solid rgba(26, 26, 46, 0.3);
+}
+
+.popup-winners-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--secondary-color), var(--gold));
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.popup-winner-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.popup-winner-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateX(5px);
+}
+
+.popup-winner-position {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    min-width: 50px;
+    text-align: center;
+}
+
+.popup-winner-details {
+    flex: 1;
+}
+
+.popup-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+    letter-spacing: 2px;
+}
+
+.popup-name {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.popup-position {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 1px;
 }
 
 .popup-winner-info {
@@ -749,22 +893,6 @@ footer {
     padding: 2rem;
     margin: 2rem 0;
     border: 2px solid rgba(255, 215, 0, 0.3);
-}
-
-.popup-number {
-    font-size: 3rem;
-    font-weight: 900;
-    color: var(--gold);
-    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-    margin-bottom: 1rem;
-    letter-spacing: 5px;
-}
-
-.popup-name {
-    font-size: 1.8rem;
-    color: var(--text-light);
-    font-weight: 700;
-    margin-top: 0.5rem;
 }
 
 .popup-prize {

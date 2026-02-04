@@ -161,12 +161,12 @@
         <div class="container">
             <h2>Quản lý danh sách tham gia</h2>
             <div class="input-area">
-                <textarea id="participants-input" placeholder="Nhập danh sách tham gia (mỗi dòng một người):&#10;Mã - Tên&#10;&#10;Ví dụ:&#10;VNPT000001 - Nguyễn Văn A&#10;CTV000001 - Trần Thị B&#10;VNPT000002 - Lê Văn C&#10;...&#10;&#10;Hoặc chỉ nhập mã:&#10;VNPT000001&#10;CTV000001&#10;VNPT000002"></textarea>
-                <button id="load-participants" class="btn-load">Tải danh sách</button>
+                <textarea id="participants-input" placeholder=""></textarea>
+                <button id="load-participants" class="btn-load"></button>
             </div>
             <div class="participants-info">
-                <p>Tổng số tham gia: <strong id="total-participants">0</strong></p>
-                <p>Còn lại: <strong id="remaining-participants">0</strong></p>
+                <p><strong id="total-participants">0</strong></p>
+                <p><strong id="remaining-participants">0</strong></p>
             </div>
         </div>
     </section>
@@ -174,53 +174,83 @@
     <!-- Settings Section -->
     <section class="settings-section">
         <div class="container">
-            <h2>Cấu hình hệ thống</h2>
+            <h2></h2>
             
             <div class="settings-grid">
                 <!-- Timing Settings -->
                 <div class="settings-group">
-                    <h3>⏱️ Cài đặt thời gian</h3>
+                    <h3></h3>
                     <div class="setting-item">
-                        <label for="spin-duration">Thời gian quay số (giây):</label>
+                        <label for="spin-duration"></label>
                         <input type="number" id="spin-duration" min="3" max="30" value="10" step="1">
-                        <span class="setting-hint">Thời gian chờ trước khi hiển thị kết quả</span>
+                        <span class="setting-hint"></span>
                     </div>
                     <div class="setting-item">
-                        <label for="digit-delay">Thời gian hiện từng số (giây):</label>
+                        <label for="digit-delay"></label>
                         <input type="number" id="digit-delay" min="0.5" max="5" value="2" step="0.5">
-                        <span class="setting-hint">Khoảng cách thời gian giữa các số kết quả</span>
+                        <span class="setting-hint"></span>
+                    </div>
+                </div>
+
+                <!-- Prize Count Settings -->
+                <div class="settings-group">
+                    <h3></h3>
+                    <div class="setting-item">
+                        <label for="count-special"></label>
+                        <input type="number" id="count-special" min="1" max="100" value="1" step="1">
+                        <span class="setting-hint"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="count-first"></label>
+                        <input type="number" id="count-first" min="1" max="100" value="1" step="1">
+                        <span class="setting-hint"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="count-second"></label>
+                        <input type="number" id="count-second" min="1" max="100" value="1" step="1">
+                        <span class="setting-hint"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="count-third"></label>
+                        <input type="number" id="count-third" min="1" max="100" value="1" step="1">
+                        <span class="setting-hint"></span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="count-consolation"></label>
+                        <input type="number" id="count-consolation" min="1" max="100" value="1" step="1">
+                        <span class="setting-hint"></span>
                     </div>
                 </div>
 
                 <!-- Prize Rewards Settings -->
                 <div class="settings-group">
-                    <h3>🎁 Danh sách giải thưởng</h3>
+                    <h3></h3>
                     <div class="setting-item">
-                        <label for="prize-special">Giải đặc biệt:</label>
-                        <input type="text" id="prize-special" value="" placeholder="Nhập tên giải thưởng">
+                        <label for="prize-special"></label>
+                        <input type="text" id="prize-special" value="" placeholder="">
                     </div>
                     <div class="setting-item">
-                        <label for="prize-first">Giải nhất:</label>
-                        <input type="text" id="prize-first" value="" placeholder="Nhập tên giải thưởng">
+                        <label for="prize-first"></label>
+                        <input type="text" id="prize-first" value="" placeholder="">
                     </div>
                     <div class="setting-item">
-                        <label for="prize-second">Giải nhì:</label>
-                        <input type="text" id="prize-second" value="" placeholder="Nhập tên giải thưởng">
+                        <label for="prize-second"></label>
+                        <input type="text" id="prize-second" value="" placeholder="">
                     </div>
                     <div class="setting-item">
-                        <label for="prize-third">Giải ba:</label>
-                        <input type="text" id="prize-third" value="" placeholder="Nhập tên giải thưởng">
+                        <label for="prize-third"></label>
+                        <input type="text" id="prize-third" value="" placeholder="">
                     </div>
                     <div class="setting-item">
-                        <label for="prize-consolation">Giải khuyến khích:</label>
-                        <input type="text" id="prize-consolation" value="" placeholder="Nhập tên giải thưởng">
+                        <label for="prize-consolation"></label>
+                        <input type="text" id="prize-consolation" value="" placeholder="">
                     </div>
                 </div>
             </div>
 
             <div class="settings-actions">
-                <button id="save-settings" class="btn-save-settings">💾 Lưu cấu hình</button>
-                <button id="reset-settings" class="btn-reset-settings">🔄 Khôi phục mặc định</button>
+                <button id="save-settings" class="btn-save-settings"></button>
+                <button id="reset-settings" class="btn-reset-settings"></button>
             </div>
         </div>
     </section>

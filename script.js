@@ -9,6 +9,7 @@ class LuckyDraw {
         this.numberBoxes = document.querySelectorAll('.number');
         this.spinInterval = null;
         this.settings = this.loadSettings();
+        this.prizeDrawCount = {}; // Track how many times each prize has been drawn
         
         this.init();
     }
@@ -59,11 +60,13 @@ class LuckyDraw {
         const savedParticipants = localStorage.getItem('luckydraw_participants');
         const savedRemaining = localStorage.getItem('luckydraw_remaining');
         const savedWinners = localStorage.getItem('luckydraw_winners');
+        const savedPrizeCount = localStorage.getItem('luckydraw_prizecount');
         
         if (savedParticipants) {
             this.participants = JSON.parse(savedParticipants);
             this.remainingParticipants = savedRemaining ? JSON.parse(savedRemaining) : [...this.participants];
             this.winners = savedWinners ? JSON.parse(savedWinners) : [];
+            this.prizeDrawCount = savedPrizeCount ? JSON.parse(savedPrizeCount) : {};
             
             // Update textarea with saved data
             setTimeout(() => {
@@ -107,6 +110,7 @@ class LuckyDraw {
         localStorage.setItem('luckydraw_participants', JSON.stringify(this.participants));
         localStorage.setItem('luckydraw_remaining', JSON.stringify(this.remainingParticipants));
         localStorage.setItem('luckydraw_winners', JSON.stringify(this.winners));
+        localStorage.setItem('luckydraw_prizecount', JSON.stringify(this.prizeDrawCount));
     }
     
     loadParticipants() {
@@ -145,8 +149,10 @@ class LuckyDraw {
         
         this.remainingParticipants = [...this.participants];
         this.winners = [];
+        this.prizeDrawCount = {}; // Reset draw count
         this.saveToLocalStorage();
         this.updateParticipantsDisplay();
+        this.updatePrizeDisplay(); // Update to show reset count
         
         // Clear winners list display
         const winnersList = document.querySelector('.winners-list');
@@ -167,7 +173,14 @@ class LuckyDraw {
         const prizeIndex = prizes.indexOf(this.currentPrize);
         
         if (prizeIndex >= 0) {
-            prizeTitle.textContent = languageManager.t(prizeKeys[prizeIndex]);
+            const prizeText = languageManager.t(prizeKeys[prizeIndex]);
+            const drawnCount = this.prizeDrawCount[this.currentPrize] || 0;
+            
+            if (drawnCount > 0) {
+                prizeTitle.textContent = `${prizeText} (${drawnCount})`;
+            } else {
+                prizeTitle.textContent = prizeText;
+            }
         } else {
             prizeTitle.textContent = this.currentPrize.toUpperCase();
         }
@@ -199,6 +212,10 @@ class LuckyDraw {
             alert(languageManager.t('alertNoRemaining'));
             return;
         }
+        
+        // Get how many winners to draw this round from settings
+        const drawCount = this.settings.prizeCount[this.currentPrize] || 1;
+        this.currentDrawCount = Math.min(drawCount, this.remainingParticipants.length);
         
         this.isSpinning = true;
         const drawBtn = document.querySelector('.btn-draw');
@@ -234,36 +251,66 @@ class LuckyDraw {
         
         // DON'T remove rotating animation here - let displayWinnerNumber handle it per box
         
-        // Pick a random winner
-        const randomIndex = Math.floor(Math.random() * this.remainingParticipants.length);
-        const winner = this.remainingParticipants[randomIndex];
+        // Pick multiple random winners
+        const drawWinners = [];
+        for (let i = 0; i < this.currentDrawCount; i++) {
+            if (this.remainingParticipants.length === 0) break;
+            
+            const randomIndex = Math.floor(Math.random() * this.remainingParticipants.length);
+            const winner = this.remainingParticipants[randomIndex];
+            
+            // Remove winner from remaining participants
+            this.remainingParticipants.splice(randomIndex, 1);
+            
+            // Add to winners list
+            const winnerObj = {
+                code: typeof winner === 'object' ? (winner.code || winner.number) : winner,
+                name: typeof winner === 'object' ? winner.name : 'Người tham gia',
+                prize: this.currentPrize
+            };
+            this.winners.push(winnerObj);
+            drawWinners.push(winnerObj);
+            
+            // Increment prize draw count
+            if (!this.prizeDrawCount[this.currentPrize]) {
+                this.prizeDrawCount[this.currentPrize] = 0;
+            }
+            this.prizeDrawCount[this.currentPrize]++;
+        }
         
-        // Remove winner from remaining participants
-        this.remainingParticipants.splice(randomIndex, 1);
-        
-        // Add to winners list
-        this.winners.push({
-            code: typeof winner === 'object' ? (winner.code || winner.number) : winner,
-            name: typeof winner === 'object' ? winner.name : 'Người tham gia',
-            prize: this.currentPrize
-        });
-        
-        // Display winner number digit by digit with animation
-        // Callback will be triggered when animation completes
-        this.displayWinnerNumber(winner, () => {
-            // Update displays after all animations complete
+        // Display all winners sequentially
+        this.displayWinners(drawWinners, 0);
+    }
+    
+    displayWinners(winners, currentIndex) {
+        if (currentIndex >= winners.length) {
+            // All winners displayed, update UI and show popup
             this.updateParticipantsDisplay();
             this.updateWinnersList(true);
-            this.celebrateWin();
+            this.updatePrizeDisplay();
             this.saveToLocalStorage();
             
-            // Show congratulations popup
-            this.showCongratulationsPopup(this.winners[this.winners.length - 1]);
+            // Show congratulations popup with all winners
+            this.showCongratulationsPopup(winners);
             
             const drawBtn = document.querySelector('.btn-draw');
             drawBtn.classList.remove('spinning');
             drawBtn.querySelector('span').textContent = languageManager.t('btnDraw');
             this.isSpinning = false;
+            return;
+        }
+        
+        const winner = winners[currentIndex];
+        
+        // Display this winner's number
+        this.displayWinnerNumber(winner, () => {
+            // Celebrate and move to next winner
+            this.celebrateWin();
+            
+            // Wait a bit before next winner
+            setTimeout(() => {
+                this.displayWinners(winners, currentIndex + 1);
+            }, 800);
         });
     }
     
@@ -334,9 +381,21 @@ class LuckyDraw {
         });
     }
     
-    showCongratulationsPopup(winner) {
-        // Get reward from settings
-        const reward = this.settings.prizeRewards[winner.prize] || winner.prize.toUpperCase();
+    showCongratulationsPopup(winners) {
+        // Handle both single winner and multiple winners
+        const winnerArray = Array.isArray(winners) ? winners : [winners];
+        const firstWinner = winnerArray[0];
+        
+        // Get reward from settings, or use translated prize name
+        let reward = this.settings.prizeRewards[firstWinner.prize];
+        if (!reward || reward.trim() === '') {
+            // If no custom reward, use translated prize name
+            reward = languageManager.getPrizeTranslation(firstWinner.prize);
+        }
+        
+        // Get current count
+        const currentCount = this.prizeDrawCount[firstWinner.prize] || 0;
+        const totalCount = this.settings.prizeCount[firstWinner.prize] || 1;
         
         // Create popup overlay
         const overlay = document.createElement('div');
@@ -345,15 +404,31 @@ class LuckyDraw {
         // Create popup content
         const popup = document.createElement('div');
         popup.className = 'popup-content';
-        const displayCode = winner.code || winner.number || '';
+        
+        // Build winners list HTML
+        let winnersHTML = '';
+        winnerArray.forEach((winner, index) => {
+            const displayCode = winner.code || winner.number || '';
+            const position = currentCount - winnerArray.length + index + 1;
+            winnersHTML += `
+                <div class="popup-winner-item">
+                    <div class="popup-winner-position">#${position}</div>
+                    <div class="popup-winner-details">
+                        <div class="popup-number">${displayCode}</div>
+                        <div class="popup-name">${winner.name}</div>
+                    </div>
+                </div>
+            `;
+        });
+        
         popup.innerHTML = `
             <div class="popup-icon">🎉</div>
             <h2 class="popup-title">${languageManager.t('congratulations')}</h2>
-            <div class="popup-winner-info">
-                <div class="popup-number">${displayCode}</div>
-                <div class="popup-name">${winner.name}</div>
+            <div class="popup-subtitle">${languageManager.t('prizeLabel')} ${reward}</div>
+            <div class="popup-count">${languageManager.t('totalWinners')}: ${winnerArray.length} ${languageManager.t('people')}</div>
+            <div class="popup-winners-container">
+                ${winnersHTML}
             </div>
-            <div class="popup-prize">${languageManager.t('prizeLabel')} ${reward}</div>
             <button class="popup-close">${languageManager.t('btnClose')}</button>
         `;
         
@@ -425,8 +500,15 @@ class LuckyDraw {
     
     loadSettings() {
         const defaultSettings = {
-            spinDuration: 10,
-            digitDelay: 2,
+            spinDuration: 5,
+            digitDelay: 0.5,
+            prizeCount: {
+                'giải đặc biệt': 1,
+                'giải nhất': 1,
+                'giải nhì': 1,
+                'giải ba': 1,
+                'giải khuyến khích': 1
+            },
             prizeRewards: {
                 'giải đặc biệt': '',
                 'giải nhất': '',
@@ -464,6 +546,23 @@ class LuckyDraw {
         if (spinDurationInput) spinDurationInput.value = settings.spinDuration;
         if (digitDelayInput) digitDelayInput.value = settings.digitDelay;
         
+        // Load prize count
+        const countInputs = {
+            'giải đặc biệt': document.getElementById('count-special'),
+            'giải nhất': document.getElementById('count-first'),
+            'giải nhì': document.getElementById('count-second'),
+            'giải ba': document.getElementById('count-third'),
+            'giải khuyến khích': document.getElementById('count-consolation')
+        };
+        
+        if (settings.prizeCount) {
+            Object.keys(countInputs).forEach(key => {
+                if (countInputs[key] && settings.prizeCount[key]) {
+                    countInputs[key].value = settings.prizeCount[key];
+                }
+            });
+        }
+        
         // Load prize rewards
         const prizeInputs = {
             'giải đặc biệt': document.getElementById('prize-special'),
@@ -484,6 +583,14 @@ class LuckyDraw {
         const spinDuration = parseFloat(document.getElementById('spin-duration').value);
         const digitDelay = parseFloat(document.getElementById('digit-delay').value);
         
+        const prizeCount = {
+            'giải đặc biệt': parseInt(document.getElementById('count-special').value) || 1,
+            'giải nhất': parseInt(document.getElementById('count-first').value) || 1,
+            'giải nhì': parseInt(document.getElementById('count-second').value) || 1,
+            'giải ba': parseInt(document.getElementById('count-third').value) || 1,
+            'giải khuyến khích': parseInt(document.getElementById('count-consolation').value) || 1
+        };
+        
         const prizeRewards = {
             'giải đặc biệt': document.getElementById('prize-special').value,
             'giải nhất': document.getElementById('prize-first').value,
@@ -495,6 +602,7 @@ class LuckyDraw {
         this.settings = {
             spinDuration,
             digitDelay,
+            prizeCount,
             prizeRewards
         };
         
@@ -506,6 +614,13 @@ class LuckyDraw {
         const defaultSettings = {
             spinDuration: 10,
             digitDelay: 2,
+            prizeCount: {
+                'giải đặc biệt': 1,
+                'giải nhất': 1,
+                'giải nhì': 1,
+                'giải ba': 1,
+                'giải khuyến khích': 1
+            },
             prizeRewards: {
                 'giải đặc biệt': '',
                 'giải nhất': '',

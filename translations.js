@@ -52,6 +52,9 @@ VNPT000002`,
         
         // Congratulations popup
         congratulations: 'CHÚC MỪNG!',
+        winnerPosition: 'Người thứ',
+        totalWinners: 'Tổng số người trúng',
+        people: 'người',
         winnerCode: 'Mã số:',
         winnerNameLabel: 'Tên:',
         prizeLabel: 'Giải thưởng:',
@@ -74,10 +77,17 @@ VNPT000002`,
         settingsTitle: 'Cấu hình hệ thống',
         timingSettings: 'Cài đặt thời gian',
         prizeSettings: 'Danh sách giải thưởng',
+        prizeCountSettings: 'Số lượng kết quả',
         spinDuration: 'Thời gian quay số (giây):',
         digitDelay: 'Thời gian hiện từng số (giây):',
         spinDurationHint: 'Thời gian chờ trước khi hiển thị kết quả',
         digitDelayHint: 'Khoảng cách thời gian giữa các số kết quả',
+        countSpecialLabel: 'Giải đặc biệt:',
+        countFirstLabel: 'Giải nhất:',
+        countSecondLabel: 'Giải nhì:',
+        countThirdLabel: 'Giải ba:',
+        countConsolationLabel: 'Giải khuyến khích:',
+        countHint: 'Số lượng người trúng',
         prizeSpecialLabel: 'Giải đặc biệt:',
         prizeFirstLabel: 'Giải nhất:',
         prizeSecondLabel: 'Giải nhì:',
@@ -141,6 +151,9 @@ VNPT000002`,
         
         // Congratulations popup
         congratulations: 'CONGRATULATIONS!',
+        winnerPosition: 'Winner',
+        totalWinners: 'Total Winners',
+        people: 'people',
         winnerCode: 'Code:',
         winnerNameLabel: 'Name:',
         prizeLabel: 'Prize:',
@@ -163,10 +176,17 @@ VNPT000002`,
         settingsTitle: 'System Configuration',
         timingSettings: 'Timing Settings',
         prizeSettings: 'Prize Rewards List',
+        prizeCountSettings: 'Winner Count',
         spinDuration: 'Spin duration (seconds):',
         digitDelay: 'Digit display delay (seconds):',
         spinDurationHint: 'Wait time before showing result',
         digitDelayHint: 'Time interval between each result digit',
+        countSpecialLabel: 'Grand Prize:',
+        countFirstLabel: 'First Prize:',
+        countSecondLabel: 'Second Prize:',
+        countThirdLabel: 'Third Prize:',
+        countConsolationLabel: 'Consolation Prize:',
+        countHint: 'Number of winners',
         prizeSpecialLabel: 'Grand Prize:',
         prizeFirstLabel: 'First Prize:',
         prizeSecondLabel: 'Second Prize:',
@@ -272,6 +292,9 @@ class LanguageManager {
         const timingTitle = document.querySelector('.settings-section .settings-group:first-child h3');
         if (timingTitle) timingTitle.textContent = '⏱️ ' + this.t('timingSettings');
         
+        const countTitle = document.querySelector('.settings-section .settings-group:nth-child(2) h3');
+        if (countTitle) countTitle.textContent = '🔢 ' + this.t('prizeCountSettings');
+        
         const prizeTitle = document.querySelector('.settings-section .settings-group:last-child h3');
         if (prizeTitle) prizeTitle.textContent = '🎁 ' + this.t('prizeSettings');
         
@@ -287,6 +310,25 @@ class LanguageManager {
         
         const digitDelayHint = document.querySelector('label[for="digit-delay"]').nextElementSibling.nextElementSibling;
         if (digitDelayHint) digitDelayHint.textContent = this.t('digitDelayHint');
+        
+        // Update prize count labels
+        const countLabels = [
+            { selector: 'label[for="count-special"]', key: 'countSpecialLabel' },
+            { selector: 'label[for="count-first"]', key: 'countFirstLabel' },
+            { selector: 'label[for="count-second"]', key: 'countSecondLabel' },
+            { selector: 'label[for="count-third"]', key: 'countThirdLabel' },
+            { selector: 'label[for="count-consolation"]', key: 'countConsolationLabel' }
+        ];
+        
+        countLabels.forEach(({ selector, key }) => {
+            const label = document.querySelector(selector);
+            if (label) label.textContent = this.t(key);
+            const hint = document.querySelector(selector)?.nextElementSibling?.nextElementSibling;
+            if (hint && hint.classList.contains('setting-hint')) {
+                const prizeType = this.t(key).toLowerCase().replace(':', '');
+                hint.textContent = `${this.t('countHint')} ${prizeType}`;
+            }
+        });
         
         // Update prize labels
         const prizeLabels = [
