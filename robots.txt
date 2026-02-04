@@ -1,10 +1,10 @@
-# robots.txt for wheelofwow.com
+# robots.txt for stevenngo25.github.io/wheelofwow
 
 User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://wheelofwow.com/sitemap.xml
+Sitemap: https://stevenngo25.github.io/wheelofwow/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 10

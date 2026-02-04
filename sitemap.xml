@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
-        <loc>https://wheelofwow.com/</loc>
+        <loc>https://stevenngo25.github.io/wheelofwow/</loc>
         <lastmod>2026-02-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
-        <xhtml:link rel="alternate" hreflang="vi" href="https://wheelofwow.com/?lang=vi"/>
-        <xhtml:link rel="alternate" hreflang="en" href="https://wheelofwow.com/?lang=en"/>
+        <xhtml:link rel="alternate" hreflang="vi" href="https://stevenngo25.github.io/wheelofwow/?lang=vi"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://stevenngo25.github.io/wheelofwow/?lang=en"/>
     </url>
 </urlset>
