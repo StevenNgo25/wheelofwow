@@ -1,0 +1,193 @@
+{
+  "app": {
+    "title": "QUAY LÀ TRÚNG",
+    "description": "Hệ thống quay số trúng thưởng online miễn phí, công bằng và minh bạch"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "features": "Tính năng",
+    "pricing": "Bảng giá",
+    "dashboard": "Bảng điều khiển",
+    "draw": "Quay số",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất",
+    "login": "Đăng nhập",
+    "signup": "Đăng ký"
+  },
+  "prizes": {
+    "special": "GIẢI ĐẶC BIỆT",
+    "first": "GIẢI NHẤT",
+    "second": "GIẢI NHÌ",
+    "third": "GIẢI BA",
+    "consolation": "GIẢI KHUYẾN KHÍCH"
+  },
+  "draw": {
+    "instruction": "Nhấn nút Quay số để bắt đầu",
+    "btnDraw": "QUAY SỐ",
+    "btnDrawing": "ĐANG QUAY...",
+    "btnStop": "DỪNG",
+    "noParticipants": "Không còn số tham gia nào! Vui lòng tải lại danh sách."
+  },
+  "participants": {
+    "title": "Quản lý danh sách tham gia",
+    "placeholder": "Nhập danh sách tham gia (mỗi dòng một người):\\nMã - Tên\\n\\nVí dụ:\\nVNPT000001 - Nguyễn Văn A\\nCTV000001 - Trần Thị B",
+    "total": "Tổng số tham gia:",
+    "remaining": "Còn lại:",
+    "btnLoad": "Tải danh sách",
+    "loadSuccess": "Đã tải {count} số tham gia thành công!",
+    "loadError": "Vui lòng nhập danh sách số tham gia!",
+    "invalidList": "Danh sách không hợp lệ!"
+  },
+  "winners": {
+    "title": "Danh sách trúng thưởng",
+    "code": "Mã số",
+    "name": "Tên",
+    "prize": "Giải thưởng",
+    "empty": "Chưa có người trúng thưởng",
+    "congratulations": "CHÚC MỪNG!",
+    "totalWinners": "Tổng số người trúng",
+    "people": "người",
+    "btnClose": "Đóng"
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập vào tài khoản",
+      "subtitle": "Truy cập bảng điều khiển của bạn",
+      "email": "Địa chỉ email",
+      "password": "Mật khẩu",
+      "forgotPassword": "Quên mật khẩu?",
+      "btnLogin": "Đăng nhập",
+      "btnGoogle": "Tiếp tục với Google",
+      "noAccount": "Chưa có tài khoản?",
+      "signup": "Đăng ký"
+    },
+    "signup": {
+      "title": "Tạo tài khoản mới",
+      "subtitle": "Bắt đầu sử dụng hệ thống quay số",
+      "name": "Họ và tên",
+      "email": "Địa chỉ email",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "btnSignup": "Tạo tài khoản",
+      "btnGoogle": "Đăng ký với Google",
+      "hasAccount": "Đã có tài khoản?",
+      "login": "Đăng nhập"
+    }
+  },
+  "pricing": {
+    "title": "Chọn gói dịch vụ",
+    "subtitle": "Lựa chọn gói phù hợp với nhu cầu của bạn",
+    "monthly": "Hàng tháng",
+    "yearly": "Hàng năm",
+    "save": "Tiết kiệm 20%",
+    "free": {
+      "name": "Miễn phí",
+      "price": "0đ",
+      "period": "mãi mãi",
+      "features": [
+        "5 lượt quay/tháng",
+        "Tối đa 50 người tham gia",
+        "Giải thưởng cơ bản",
+        "Hỗ trợ email"
+      ],
+      "cta": "Bắt đầu"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "200.000đ",
+      "period": "mỗi tháng",
+      "features": [
+        "Quay số không giới hạn",
+        "Người tham gia không giới hạn",
+        "Tất cả loại giải thưởng",
+        "Hỗ trợ ưu tiên",
+        "Xuất kết quả",
+        "Tùy chỉnh thương hiệu"
+      ],
+      "cta": "Đăng ký ngay",
+      "popular": "Phổ biến nhất"
+    },
+    "enterprise": {
+      "name": "Doanh nghiệp",
+      "price": "Tùy chỉnh",
+      "period": "liên hệ",
+      "features": [
+        "Tất cả tính năng Pro",
+        "Truy cập API",
+        "Giải pháp white-label",
+        "Hỗ trợ chuyên biệt",
+        "Tích hợp tùy chỉnh",
+        "Cam kết SLA"
+      ],
+      "cta": "Liên hệ bán hàng"
+    }
+  },
+  "dashboard": {
+    "welcome": "Chào mừng trở lại",
+    "subscription": {
+      "title": "Gói đăng ký của bạn",
+      "plan": "Gói",
+      "status": "Trạng thái",
+      "expires": "Hết hạn",
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "btnManage": "Quản lý đăng ký",
+      "btnUpgrade": "Nâng cấp gói"
+    },
+    "stats": {
+      "totalDraws": "Tổng số lượt quay",
+      "totalWinners": "Tổng người trúng",
+      "thisMonth": "Tháng này",
+      "remaining": "Còn lại"
+    },
+    "quickActions": {
+      "title": "Thao tác nhanh",
+      "newDraw": "Bắt đầu quay số",
+      "history": "Xem lịch sử",
+      "settings": "Cấu hình"
+    }
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "profile": {
+      "title": "Thông tin cá nhân",
+      "name": "Họ và tên",
+      "email": "Địa chỉ email",
+      "avatar": "Ảnh đại diện",
+      "btnSave": "Lưu thay đổi"
+    },
+    "draw": {
+      "title": "Cài đặt quay số",
+      "spinDuration": "Thời gian quay số (giây)",
+      "digitDelay": "Thời gian hiện từng số (giây)",
+      "spinDurationHint": "Thời gian chờ trước khi hiển thị kết quả",
+      "digitDelayHint": "Khoảng cách thời gian giữa các số kết quả"
+    },
+    "prizes": {
+      "title": "Cấu hình giải thưởng",
+      "countLabel": "Số lượng người trúng",
+      "prizeLabel": "Tên giải thưởng",
+      "btnSave": "Lưu cấu hình",
+      "btnReset": "Khôi phục mặc định",
+      "saveSuccess": "Đã lưu cấu hình thành công!",
+      "resetSuccess": "Đã khôi phục cấu hình mặc định!"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 Lucky Draw. Tất cả quyền được bảo lưu.",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản dịch vụ",
+    "contact": "Liên hệ"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi",
+    "success": "Thành công!",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "close": "Đóng"
+  }
+}

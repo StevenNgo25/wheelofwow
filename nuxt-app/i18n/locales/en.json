@@ -1,0 +1,193 @@
+{
+  "app": {
+    "title": "LUCKY DRAW",
+    "description": "Fair and transparent online lucky draw system"
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard",
+    "draw": "Lucky Draw",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "prizes": {
+    "special": "GRAND PRIZE",
+    "first": "FIRST PRIZE",
+    "second": "SECOND PRIZE",
+    "third": "THIRD PRIZE",
+    "consolation": "CONSOLATION PRIZE"
+  },
+  "draw": {
+    "instruction": "Press Draw button to start",
+    "btnDraw": "DRAW",
+    "btnDrawing": "DRAWING...",
+    "btnStop": "STOP",
+    "noParticipants": "No participants remaining! Please reload the list."
+  },
+  "participants": {
+    "title": "Manage Participants",
+    "placeholder": "Enter participant list (one per line):\\nCode - Name\\n\\nExample:\\nVNPT000001 - John Doe\\nCTV000001 - Jane Smith",
+    "total": "Total participants:",
+    "remaining": "Remaining:",
+    "btnLoad": "Load List",
+    "loadSuccess": "Successfully loaded {count} participants!",
+    "loadError": "Please enter the participant list!",
+    "invalidList": "Invalid list format!"
+  },
+  "winners": {
+    "title": "Winners List",
+    "code": "Code",
+    "name": "Name",
+    "prize": "Prize",
+    "empty": "No winners yet",
+    "congratulations": "CONGRATULATIONS!",
+    "totalWinners": "Total Winners",
+    "people": "people",
+    "btnClose": "Close"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to your account",
+      "subtitle": "Access your lucky draw dashboard",
+      "email": "Email address",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "btnLogin": "Sign in",
+      "btnGoogle": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "signup": "Sign up"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Start using lucky draw system",
+      "name": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "btnSignup": "Create account",
+      "btnGoogle": "Sign up with Google",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    }
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "subtitle": "Select the perfect plan for your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 20%",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "forever",
+      "features": [
+        "5 draws per month",
+        "Up to 50 participants",
+        "Basic prizes",
+        "Email support"
+      ],
+      "cta": "Get Started"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$10",
+      "period": "per month",
+      "features": [
+        "Unlimited draws",
+        "Unlimited participants",
+        "All prize types",
+        "Priority support",
+        "Export results",
+        "Custom branding"
+      ],
+      "cta": "Subscribe Now",
+      "popular": "Most Popular"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "period": "contact us",
+      "features": [
+        "Everything in Pro",
+        "API access",
+        "White-label solution",
+        "Dedicated support",
+        "Custom integrations",
+        "SLA guarantee"
+      ],
+      "cta": "Contact Sales"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "subscription": {
+      "title": "Your Subscription",
+      "plan": "Plan",
+      "status": "Status",
+      "expires": "Expires",
+      "active": "Active",
+      "inactive": "Inactive",
+      "btnManage": "Manage Subscription",
+      "btnUpgrade": "Upgrade Plan"
+    },
+    "stats": {
+      "totalDraws": "Total Draws",
+      "totalWinners": "Total Winners",
+      "thisMonth": "This Month",
+      "remaining": "Remaining"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newDraw": "Start New Draw",
+      "history": "View History",
+      "settings": "Configure Settings"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile Settings",
+      "name": "Full Name",
+      "email": "Email Address",
+      "avatar": "Avatar",
+      "btnSave": "Save Changes"
+    },
+    "draw": {
+      "title": "Draw Settings",
+      "spinDuration": "Spin duration (seconds)",
+      "digitDelay": "Digit display delay (seconds)",
+      "spinDurationHint": "Wait time before showing result",
+      "digitDelayHint": "Time interval between each digit"
+    },
+    "prizes": {
+      "title": "Prize Configuration",
+      "countLabel": "Number of winners",
+      "prizeLabel": "Prize name",
+      "btnSave": "Save Configuration",
+      "btnReset": "Reset to Default",
+      "saveSuccess": "Configuration saved successfully!",
+      "resetSuccess": "Configuration reset to default!"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 Lucky Draw. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success!",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  }
+}
