@@ -203,7 +203,7 @@ VNPT000002`,
 // Language Manager
 class LanguageManager {
     constructor() {
-        this.currentLanguage = localStorage.getItem('luckydraw_language') || 'vi';
+        this.currentLanguage = localStorage.getItem('luckydraw_language') || 'en';
         this.translations = translations;
     }
     
