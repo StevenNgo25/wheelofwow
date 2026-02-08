@@ -4,32 +4,45 @@ class LuckyDraw {
         this.participants = [];
         this.remainingParticipants = [];
         this.winners = [];
-        this.currentPrize = 'giải ba';
+        this.prizes = []; // Dynamic prizes list
+        this.currentPrize = null; // Will be set after loading prizes
         this.isSpinning = false;
         this.numberBoxes = document.querySelectorAll('.number');
         this.spinInterval = null;
         this.settings = this.loadSettings();
         this.prizeDrawCount = {}; // Track how many times each prize has been drawn
+        this.drawSessionId = 0; // Track draw sessions
+        this.expandedDraws = new Set(); // Track which draws are expanded (default: collapsed)
         
         this.init();
     }
     
     init() {
+        this.renderPrizeSelector();
         this.setupEventListeners();
         this.loadFromLocalStorage();
     }
     
     setupEventListeners() {
-        // Prize selection buttons
-        const prizeBtns = document.querySelectorAll('.prize-btn');
-        prizeBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                prizeBtns.forEach(b => b.classList.remove('active'));
+        // Prize selection buttons - delegated event
+        const prizeSelector = document.getElementById('prize-selector');
+        if (prizeSelector) {
+            prizeSelector.addEventListener('click', (e) => {
+                const btn = e.target.closest('.prize-btn');
+                if (!btn) return;
+                
+                document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.currentPrize = btn.dataset.prize;
                 this.updatePrizeDisplay();
             });
-        });
+        }
+        
+        // Add prize button
+        const addPrizeBtn = document.getElementById('btn-add-prize');
+        if (addPrizeBtn) {
+            addPrizeBtn.addEventListener('click', () => this.addNewPrize());
+        }
         
         // Draw button
         const drawBtn = document.querySelector('.btn-draw');
@@ -53,6 +66,30 @@ class LuckyDraw {
         if (resetSettingsBtn) {
             resetSettingsBtn.addEventListener('click', () => this.resetSettings());
         }
+        
+        // Background upload buttons
+        const uploadBgBtn = document.getElementById('btn-upload-bg');
+        const backgroundUploadInput = document.getElementById('background-upload');
+        const resetBgBtn = document.getElementById('btn-reset-bg');
+        
+        if (uploadBgBtn && backgroundUploadInput) {
+            uploadBgBtn.addEventListener('click', () => {
+                backgroundUploadInput.click();
+            });
+            
+            backgroundUploadInput.addEventListener('change', (e) => {
+                this.handleBackgroundUpload(e);
+            });
+        }
+        
+        if (resetBgBtn) {
+            resetBgBtn.addEventListener('click', () => {
+                this.resetBackground();
+            });
+        }
+        
+        // Load saved background on init
+        this.loadCustomBackground();
     }
     
     loadFromLocalStorage() {
@@ -61,12 +98,14 @@ class LuckyDraw {
         const savedRemaining = localStorage.getItem('luckydraw_remaining');
         const savedWinners = localStorage.getItem('luckydraw_winners');
         const savedPrizeCount = localStorage.getItem('luckydraw_prizecount');
+        const savedDrawSessionId = localStorage.getItem('luckydraw_drawsessionid');
         
         if (savedParticipants) {
             this.participants = JSON.parse(savedParticipants);
             this.remainingParticipants = savedRemaining ? JSON.parse(savedRemaining) : [...this.participants];
             this.winners = savedWinners ? JSON.parse(savedWinners) : [];
             this.prizeDrawCount = savedPrizeCount ? JSON.parse(savedPrizeCount) : {};
+            this.drawSessionId = savedDrawSessionId ? parseInt(savedDrawSessionId) : 0;
             
             // Update textarea with saved data
             setTimeout(() => {
@@ -111,6 +150,7 @@ class LuckyDraw {
         localStorage.setItem('luckydraw_remaining', JSON.stringify(this.remainingParticipants));
         localStorage.setItem('luckydraw_winners', JSON.stringify(this.winners));
         localStorage.setItem('luckydraw_prizecount', JSON.stringify(this.prizeDrawCount));
+        localStorage.setItem('luckydraw_drawsessionid', this.drawSessionId.toString());
     }
     
     loadParticipants() {
@@ -131,19 +171,67 @@ class LuckyDraw {
             return;
         }
         
-        // Parse code and name (format: "code - name" or just "code")
-        // Code format: <prefix><number> e.g., VNPT0001, CTV00001
-        this.participants = lines.map(line => {
-            const parts = line.split('-').map(p => p.trim());
-            if (parts.length >= 2) {
-                // Has name: "code - name"
-                const code = parts[0].trim();
-                const name = parts.slice(1).join(' - ');
-                return { code, name };
+        // Process lines and expand number ranges
+        this.participants = [];
+        
+        lines.forEach(line => {
+            // Check for number range pattern: <from_number>=><to_number> or <from_number>-><to_number>
+            const rangePattern = /^(\d+)\s*(?:=>|->)\s*(\d+)$/;
+            const rangeMatch = line.match(rangePattern);
+            
+            if (rangeMatch) {
+                // This is a number range
+                const fromNumber = parseInt(rangeMatch[1]);
+                const toNumber = parseInt(rangeMatch[2]);
+                
+                if (fromNumber <= toNumber) {
+                    // Generate numbers from fromNumber to toNumber
+                    for (let i = fromNumber; i <= toNumber; i++) {
+                        this.participants.push({
+                            code: String(i),
+                            name: languageManager.t('defaultParticipant')
+                        });
+                    }
+                }
             } else {
-                // Only code
-                const code = line.trim();
-                return { code, name: languageManager.t('defaultParticipant') };
+                // Parse code and name (format: "code - name" or just "code")
+                // Code format: <prefix><number> e.g., VNPT0001, CTV00001
+                const parts = line.split('-').map(p => p.trim());
+                if (parts.length >= 2) {
+                    // Check if this is a range pattern with dash (e.g., "100 -> 200")
+                    const dashRangePattern = /^(\d+)\s*$/;
+                    if (parts.length === 2 && parts[1].match(/^>\s*(\d+)$/)) {
+                        // This might be "100 - > 200" format, try to parse it
+                        const fromNum = parts[0].match(dashRangePattern);
+                        const toNum = parts[1].match(/^>\s*(\d+)$/);
+                        if (fromNum && toNum) {
+                            const fromNumber = parseInt(fromNum[1]);
+                            const toNumber = parseInt(toNum[1]);
+                            if (fromNumber <= toNumber) {
+                                for (let i = fromNumber; i <= toNumber; i++) {
+                                    this.participants.push({
+                                        code: String(i),
+                                        name: languageManager.t('defaultParticipant')
+                                    });
+                                }
+                            }
+                        } else {
+                            // Has name: "code - name"
+                            const code = parts[0].trim();
+                            const name = parts.slice(1).join(' - ');
+                            this.participants.push({ code, name });
+                        }
+                    } else {
+                        // Has name: "code - name"
+                        const code = parts[0].trim();
+                        const name = parts.slice(1).join(' - ');
+                        this.participants.push({ code, name });
+                    }
+                } else {
+                    // Only code
+                    const code = line.trim();
+                    this.participants.push({ code, name: languageManager.t('defaultParticipant') });
+                }
             }
         });
         
@@ -168,33 +256,28 @@ class LuckyDraw {
     
     updatePrizeDisplay() {
         const prizeTitle = document.querySelector('.current-prize');
-        const prizes = ['giải đặc biệt', 'giải nhất', 'giải nhì', 'giải ba', 'giải khuyến khích'];
-        const prizeKeys = ['prizeSpecial', 'prizeFirst', 'prizeSecond', 'prizeThird', 'prizeConsolation'];
-        const prizeIndex = prizes.indexOf(this.currentPrize);
+        if (!prizeTitle) return;
         
-        if (prizeIndex >= 0) {
-            const prizeText = languageManager.t(prizeKeys[prizeIndex]);
-            const drawnCount = this.prizeDrawCount[this.currentPrize] || 0;
-            
-            if (drawnCount > 0) {
-                prizeTitle.textContent = `${prizeText} (${drawnCount})`;
-            } else {
-                prizeTitle.textContent = prizeText;
-            }
+        const drawnCount = this.prizeDrawCount[this.currentPrize] || 0;
+        const displayName = this.currentPrize.toUpperCase();
+        
+        if (drawnCount > 0) {
+            prizeTitle.textContent = `${displayName} (${drawnCount})`;
         } else {
-            prizeTitle.textContent = this.currentPrize.toUpperCase();
+            prizeTitle.textContent = displayName;
         }
     }
     
     navigatePrize(direction) {
-        const prizes = ['giải đặc biệt', 'giải nhất', 'giải nhì', 'giải ba', 'giải khuyến khích'];
-        const currentIndex = prizes.indexOf(this.currentPrize);
+        if (this.prizes.length === 0) return;
+        
+        const currentIndex = this.prizes.findIndex(p => p.name === this.currentPrize);
         let newIndex = currentIndex + direction;
         
-        if (newIndex < 0) newIndex = prizes.length - 1;
-        if (newIndex >= prizes.length) newIndex = 0;
+        if (newIndex < 0) newIndex = this.prizes.length - 1;
+        if (newIndex >= this.prizes.length) newIndex = 0;
         
-        this.currentPrize = prizes[newIndex];
+        this.currentPrize = this.prizes[newIndex].name;
         
         // Update UI
         const prizeBtns = document.querySelectorAll('.prize-btn');
@@ -213,8 +296,9 @@ class LuckyDraw {
             return;
         }
         
-        // Get how many winners to draw this round from settings
-        const drawCount = this.settings.prizeCount[this.currentPrize] || 1;
+        // Get how many winners to draw this round from current prize settings
+        const currentPrizeObj = this.prizes.find(p => p.name === this.currentPrize);
+        const drawCount = currentPrizeObj ? currentPrizeObj.count : 1;
         this.currentDrawCount = Math.min(drawCount, this.remainingParticipants.length);
         
         this.isSpinning = true;
@@ -266,7 +350,8 @@ class LuckyDraw {
             const winnerObj = {
                 code: typeof winner === 'object' ? (winner.code || winner.number) : winner,
                 name: typeof winner === 'object' ? winner.name : 'Người tham gia',
-                prize: this.currentPrize
+                prize: this.currentPrize,
+                drawId: this.drawSessionId
             };
             this.winners.push(winnerObj);
             drawWinners.push(winnerObj);
@@ -288,6 +373,7 @@ class LuckyDraw {
             this.updateParticipantsDisplay();
             this.updateWinnersList(true);
             this.updatePrizeDisplay();
+            this.drawSessionId++; // Increment for next draw
             this.saveToLocalStorage();
             
             // Show congratulations popup with all winners
@@ -319,7 +405,10 @@ class LuckyDraw {
         
         // Extract only the numeric part from the code (remove letters)
         const numberPart = code.replace(/[^0-9]/g, '');
-        const digits = numberPart.split('').slice(-6); // Get last 6 digits
+        
+        // Pad with leading zeros to make it 6 digits, then split
+        const paddedNumber = numberPart.padStart(6, '0');
+        const digits = paddedNumber.split('');
         
         // Use configured delay for each character
         const baseDelay = this.settings.digitDelay * 1000;
@@ -351,33 +440,77 @@ class LuckyDraw {
         
         if (this.winners.length === 0) return;
         
-        // If adding a new winner, just insert at the beginning
-        if (isNewWinner) {
-            const lastWinner = this.winners[this.winners.length - 1];
-            const winnerItem = document.createElement('div');
-            winnerItem.className = 'winner-item';
-            const displayCode = lastWinner.code || lastWinner.number || '';
-            winnerItem.innerHTML = `
-                <div class="winner-number">${displayCode}</div>
-                <div class="winner-name">${lastWinner.name || ''}</div>
-                <div class="winner-prize">${languageManager.getPrizeTranslation(lastWinner.prize)}</div>
-            `;
-            winnersList.insertBefore(winnerItem, winnersList.firstChild);
-            return;
-        }
-        
-        // Otherwise, re-render all winners (for load/translation)
-        winnersList.innerHTML = '';
+        // Group winners by drawId
+        const groupedWinners = {};
         this.winners.forEach(winner => {
-            const winnerItem = document.createElement('div');
-            winnerItem.className = 'winner-item';
-            const displayCode = winner.code || winner.number || '';
-            winnerItem.innerHTML = `
-                <div class="winner-number">${displayCode}</div>
-                <div class="winner-name">${winner.name || ''}</div>
-                <div class="winner-prize">${languageManager.getPrizeTranslation(winner.prize)}</div>
-            `;
-            winnersList.appendChild(winnerItem);
+            const drawId = winner.drawId || 0;
+            if (!groupedWinners[drawId]) {
+                groupedWinners[drawId] = [];
+            }
+            groupedWinners[drawId].push(winner);
+        });
+        
+        // Render all winner groups
+        winnersList.innerHTML = '';
+        const drawIds = Object.keys(groupedWinners).sort((a, b) => b - a); // Most recent first
+        
+        drawIds.forEach(drawId => {
+            const winnersInDraw = groupedWinners[drawId];
+            const isExpanded = this.expandedDraws.has(drawId);
+            const maxDisplay = 1; // Show max 1 winner when collapsed
+            const hasMoreWinners = winnersInDraw.length > maxDisplay;
+            
+            // Create draw group container
+            const drawGroup = document.createElement('div');
+            drawGroup.className = 'winner-draw-group';
+            drawGroup.dataset.drawId = drawId;
+            
+            // Show winners (limited or all)
+            const winnersToShow = isExpanded ? winnersInDraw : winnersInDraw.slice(0, maxDisplay);
+            winnersToShow.forEach(winner => {
+                const winnerItem = document.createElement('div');
+                winnerItem.className = 'winner-item';
+                const displayCode = winner.code || winner.number || '';
+                
+                // Get prize display name from dynamic prizes or use the prize name itself
+                let prizeDisplay = winner.prize;
+                const prizeObj = this.prizes.find(p => p.name === winner.prize);
+                if (prizeObj) {
+                    prizeDisplay = prizeObj.icon ? `${prizeObj.icon} ${prizeObj.name.toUpperCase()}` : prizeObj.name.toUpperCase();
+                } else {
+                    prizeDisplay = winner.prize.toUpperCase();
+                }
+                
+                winnerItem.innerHTML = `
+                    <div class="winner-number">${displayCode}</div>
+                    <div class="winner-name">${winner.name || ''}</div>
+                    <div class="winner-prize">${prizeDisplay}</div>
+                `;
+                drawGroup.appendChild(winnerItem);
+            });
+            
+            // Add expand/collapse button if needed
+            if (hasMoreWinners) {
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'winner-toggle-btn';
+                const remainingCount = winnersInDraw.length - maxDisplay;
+                toggleBtn.innerHTML = isExpanded 
+                    ? `<span>▲ Thu gọn</span>`
+                    : `<span>▼ Xem thêm ${remainingCount} người</span>`;
+                
+                toggleBtn.addEventListener('click', () => {
+                    if (this.expandedDraws.has(drawId)) {
+                        this.expandedDraws.delete(drawId);
+                    } else {
+                        this.expandedDraws.add(drawId);
+                    }
+                    this.updateWinnersList(false);
+                });
+                
+                drawGroup.appendChild(toggleBtn);
+            }
+            
+            winnersList.appendChild(drawGroup);
         });
     }
     
@@ -386,16 +519,12 @@ class LuckyDraw {
         const winnerArray = Array.isArray(winners) ? winners : [winners];
         const firstWinner = winnerArray[0];
         
-        // Get reward from settings, or use translated prize name
-        let reward = this.settings.prizeRewards[firstWinner.prize];
-        if (!reward || reward.trim() === '') {
-            // If no custom reward, use translated prize name
-            reward = languageManager.getPrizeTranslation(firstWinner.prize);
-        }
+        // Get reward from prize settings
+        const prizeObj = this.prizes.find(p => p.name === firstWinner.prize);
+        let reward = prizeObj && prizeObj.reward ? prizeObj.reward : firstWinner.prize;
         
         // Get current count
         const currentCount = this.prizeDrawCount[firstWinner.prize] || 0;
-        const totalCount = this.settings.prizeCount[firstWinner.prize] || 1;
         
         // Create popup overlay
         const overlay = document.createElement('div');
@@ -409,7 +538,7 @@ class LuckyDraw {
         let winnersHTML = '';
         winnerArray.forEach((winner, index) => {
             const displayCode = winner.code || winner.number || '';
-            const position = currentCount - winnerArray.length + index + 1;
+            const position = index + 1; // Position in current draw (1, 2, 3, ...)
             winnersHTML += `
                 <div class="popup-winner-item">
                     <div class="popup-winner-position">#${position}</div>
@@ -426,7 +555,7 @@ class LuckyDraw {
             <h2 class="popup-title">${languageManager.t('congratulations')}</h2>
             <div class="popup-subtitle">${languageManager.t('prizeLabel')} ${reward}</div>
             <div class="popup-count">${languageManager.t('totalWinners')}: ${winnerArray.length} ${languageManager.t('people')}</div>
-            <div class="popup-winners-container">
+            <div class="popup-winners-container ${winnerArray.length > 12 ? 'multi-column-3' : winnerArray.length > 6 ? 'multi-column' : ''}">
                 ${winnersHTML}
             </div>
             <button class="popup-close">${languageManager.t('btnClose')}</button>
@@ -499,39 +628,64 @@ class LuckyDraw {
     }
     
     loadSettings() {
+        const defaultPrizes = [
+            { name: 'giải đặc biệt', icon: '🏆', count: 1, reward: '' },
+            { name: 'giải nhất', icon: '🥇', count: 1, reward: '' },
+            { name: 'giải nhì', icon: '🥈', count: 1, reward: '' },
+            { name: 'giải ba', icon: '🥉', count: 1, reward: '' }
+        ];
+        
         const defaultSettings = {
             spinDuration: 5,
             digitDelay: 0.5,
-            prizeCount: {
-                'giải đặc biệt': 1,
-                'giải nhất': 1,
-                'giải nhì': 1,
-                'giải ba': 1,
-                'giải khuyến khích': 1
-            },
-            prizeRewards: {
-                'giải đặc biệt': '',
-                'giải nhất': '',
-                'giải nhì': '',
-                'giải ba': '',
-                'giải khuyến khích': ''
-            }
+            prizes: defaultPrizes
         };
         
         const saved = localStorage.getItem('luckydraw_settings');
         if (saved) {
             try {
                 const settings = JSON.parse(saved);
+                
+                // Migration: Convert old format to new format
+                if (settings.prizeCount && !settings.prizes) {
+                    settings.prizes = [];
+                    const oldPrizes = [
+                        { name: 'giải đặc biệt', icon: '🏆' },
+                        { name: 'giải nhất', icon: '🥇' },
+                        { name: 'giải nhì', icon: '🥈' },
+                        { name: 'giải ba', icon: '🥉' },
+                        { name: 'giải khuyến khích', icon: '🎁' }
+                    ];
+                    
+                    oldPrizes.forEach(p => {
+                        if (settings.prizeCount[p.name]) {
+                            settings.prizes.push({
+                                name: p.name,
+                                icon: p.icon,
+                                count: settings.prizeCount[p.name],
+                                reward: settings.prizeRewards[p.name] || ''
+                            });
+                        }
+                    });
+                    
+                    delete settings.prizeCount;
+                    delete settings.prizeRewards;
+                }
+                
+                this.prizes = settings.prizes || defaultPrizes;
+                
                 // Load saved settings into form
                 setTimeout(() => {
                     this.loadSettingsToForm(settings);
                 }, 0);
                 return settings;
             } catch (e) {
+                this.prizes = defaultPrizes;
                 return defaultSettings;
             }
         }
         
+        this.prizes = defaultPrizes;
         // Load default values into form
         setTimeout(() => {
             this.loadSettingsToForm(defaultSettings);
@@ -546,94 +700,304 @@ class LuckyDraw {
         if (spinDurationInput) spinDurationInput.value = settings.spinDuration;
         if (digitDelayInput) digitDelayInput.value = settings.digitDelay;
         
-        // Load prize count
-        const countInputs = {
-            'giải đặc biệt': document.getElementById('count-special'),
-            'giải nhất': document.getElementById('count-first'),
-            'giải nhì': document.getElementById('count-second'),
-            'giải ba': document.getElementById('count-third'),
-            'giải khuyến khích': document.getElementById('count-consolation')
-        };
-        
-        if (settings.prizeCount) {
-            Object.keys(countInputs).forEach(key => {
-                if (countInputs[key] && settings.prizeCount[key]) {
-                    countInputs[key].value = settings.prizeCount[key];
-                }
-            });
-        }
-        
-        // Load prize rewards
-        const prizeInputs = {
-            'giải đặc biệt': document.getElementById('prize-special'),
-            'giải nhất': document.getElementById('prize-first'),
-            'giải nhì': document.getElementById('prize-second'),
-            'giải ba': document.getElementById('prize-third'),
-            'giải khuyến khích': document.getElementById('prize-consolation')
-        };
-        
-        Object.keys(prizeInputs).forEach(key => {
-            if (prizeInputs[key] && settings.prizeRewards[key]) {
-                prizeInputs[key].value = settings.prizeRewards[key];
-            }
-        });
+        // Render dynamic prizes
+        this.renderPrizesList();
     }
     
     saveSettings() {
         const spinDuration = parseFloat(document.getElementById('spin-duration').value);
         const digitDelay = parseFloat(document.getElementById('digit-delay').value);
         
-        const prizeCount = {
-            'giải đặc biệt': parseInt(document.getElementById('count-special').value) || 1,
-            'giải nhất': parseInt(document.getElementById('count-first').value) || 1,
-            'giải nhì': parseInt(document.getElementById('count-second').value) || 1,
-            'giải ba': parseInt(document.getElementById('count-third').value) || 1,
-            'giải khuyến khích': parseInt(document.getElementById('count-consolation').value) || 1
-        };
+        // Read prizes from form
+        const prizeItems = document.querySelectorAll('.prize-item-config');
+        this.prizes = [];
         
-        const prizeRewards = {
-            'giải đặc biệt': document.getElementById('prize-special').value,
-            'giải nhất': document.getElementById('prize-first').value,
-            'giải nhì': document.getElementById('prize-second').value,
-            'giải ba': document.getElementById('prize-third').value,
-            'giải khuyến khích': document.getElementById('prize-consolation').value
-        };
+        prizeItems.forEach(item => {
+            const name = item.querySelector('.prize-name-input').value.trim();
+            const icon = item.querySelector('.prize-icon-input').value.trim() || '🏆';
+            const count = parseInt(item.querySelector('.prize-count-input').value) || 1;
+            const reward = item.querySelector('.prize-reward-input').value.trim();
+            
+            if (name) {
+                this.prizes.push({ name, icon, count, reward });
+            }
+        });
         
         this.settings = {
             spinDuration,
             digitDelay,
-            prizeCount,
-            prizeRewards
+            prizes: this.prizes
         };
         
         localStorage.setItem('luckydraw_settings', JSON.stringify(this.settings));
+        
+        // Update prize selector and display
+        // Keep current prize if it still exists, otherwise use first prize
+        const currentStillExists = this.prizes.find(p => p.name === this.currentPrize);
+        if (!currentStillExists && this.prizes.length > 0) {
+            this.currentPrize = this.prizes[0].name;
+        }
+        this.renderPrizeSelector();
+        
         alert(languageManager.t('alertSettingsSaved'));
     }
     
     resetSettings() {
+        const defaultPrizes = [
+            { name: 'giải đặc biệt', icon: '🏆', count: 1, reward: '' },
+            { name: 'giải nhất', icon: '🥇', count: 1, reward: '' },
+            { name: 'giải nhì', icon: '🥈', count: 1, reward: '' },
+            { name: 'giải ba', icon: '🥉', count: 1, reward: '' }
+        ];
+        
         const defaultSettings = {
             spinDuration: 10,
             digitDelay: 2,
-            prizeCount: {
-                'giải đặc biệt': 1,
-                'giải nhất': 1,
-                'giải nhì': 1,
-                'giải ba': 1,
-                'giải khuyến khích': 1
-            },
-            prizeRewards: {
-                'giải đặc biệt': '',
-                'giải nhất': '',
-                'giải nhì': '',
-                'giải ba': '',
-                'giải khuyến khích': ''
-            }
+            prizes: defaultPrizes
         };
         
+        this.prizes = defaultPrizes;
         this.settings = defaultSettings;
         this.loadSettingsToForm(defaultSettings);
         localStorage.setItem('luckydraw_settings', JSON.stringify(this.settings));
+        
+        // Update prize selector
+        this.currentPrize = this.prizes[0].name;
+        this.renderPrizeSelector();
+        
         alert(languageManager.t('alertSettingsReset'));
+    }
+    
+    // Prize management methods
+    renderPrizeSelector() {
+        const prizeSelector = document.getElementById('prize-selector');
+        if (!prizeSelector) return;
+        
+        prizeSelector.innerHTML = '';
+        
+        // Set currentPrize to first prize if not set or invalid
+        if (!this.currentPrize || !this.prizes.find(p => p.name === this.currentPrize)) {
+            this.currentPrize = this.prizes.length > 0 ? this.prizes[0].name : null;
+        }
+        
+        this.prizes.forEach((prize, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'prize-btn';
+            if (prize.name === this.currentPrize) {
+                btn.classList.add('active');
+            }
+            btn.dataset.prize = prize.name;
+            btn.innerHTML = `
+                <span class="prize-icon">${prize.icon}</span>
+                <span>${prize.name.toUpperCase()}</span>
+            `;
+            prizeSelector.appendChild(btn);
+        });
+        
+        // Update prize display after rendering
+        this.updatePrizeDisplay();
+    }
+    
+    renderPrizesList() {
+        const prizesList = document.getElementById('prizes-list');
+        if (!prizesList) return;
+        
+        prizesList.innerHTML = '';
+        
+        this.prizes.forEach((prize, index) => {
+            const prizeItem = document.createElement('div');
+            prizeItem.className = 'prize-item-config';
+            prizeItem.innerHTML = `
+                <div class="prize-item-header">
+                    <input type="text" class="prize-icon-input" value="${prize.icon}" placeholder="🏆" maxlength="2">
+                    <input type="text" class="prize-name-input" value="${prize.name}" placeholder="Tên giải thưởng">
+                    <button class="btn-remove-prize" data-index="${index}">🗑️</button>
+                </div>
+                <div class="prize-item-details">
+                    <div class="prize-detail-field">
+                        <label>Số lượng:</label>
+                        <input type="number" class="prize-count-input" value="${prize.count}" min="1" max="1000">
+                    </div>
+                    <div class="prize-detail-field">
+                        <label>Phần thưởng:</label>
+                        <input type="text" class="prize-reward-input" value="${prize.reward}" placeholder="VD: 10.000.000đ">
+                    </div>
+                </div>
+            `;
+            
+            // Add remove button listener
+            const removeBtn = prizeItem.querySelector('.btn-remove-prize');
+            removeBtn.addEventListener('click', () => this.removePrize(index));
+            
+            prizesList.appendChild(prizeItem);
+        });
+    }
+    
+    addNewPrize() {
+        this.prizes.push({
+            name: `Giải thưởng ${this.prizes.length + 1}`,
+            icon: '🎁',
+            count: 1,
+            reward: ''
+        });
+        this.renderPrizesList();
+    }
+    
+    removePrize(index) {
+        if (this.prizes.length <= 1) {
+            alert('Phải có ít nhất 1 giải thưởng!');
+            return;
+        }
+        
+        if (confirm(`Xóa giải "${this.prizes[index].name}"?`)) {
+            this.prizes.splice(index, 1);
+            this.renderPrizesList();
+        }
+    }
+    
+    // Background upload methods
+    handleBackgroundUpload(event) {
+        const file = event.target.files[0];
+        
+        if (!file) {
+            return;
+        }
+        
+        // Validate file type
+        if (!file.type.match('image.*')) {
+            alert(languageManager ? languageManager.t('Please upload an image file (JPG, PNG, GIF)') : 'Please upload an image file (JPG, PNG, GIF)');
+            return;
+        }
+        
+        // Validate file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            alert(languageManager ? languageManager.t('File size must be less than 10MB') : 'File size must be less than 10MB');
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            const imageData = e.target.result;
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('luckydraw_custom_background', imageData);
+                this.applyCustomBackground(imageData);
+                this.updateBackgroundPreview(imageData);
+                
+                // Show success message
+                const preview = document.getElementById('background-preview');
+                const successMsg = languageManager ? languageManager.t('bgUploadSuccess') : '✅ Background uploaded!';
+                preview.innerHTML = `<div class="preview-text success">${successMsg}</div>`;
+                
+                setTimeout(() => {
+                    this.updateBackgroundPreview(imageData);
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error saving background:', error);
+                alert('Failed to save background. The image might be too large. Please try a smaller image.');
+            }
+        };
+        
+        reader.onerror = () => {
+            alert('Failed to read the image file. Please try again.');
+        };
+        
+        reader.readAsDataURL(file);
+    }
+    
+    applyCustomBackground(imageData) {
+        if (!imageData) {
+            return;
+        }
+        
+        document.body.style.backgroundImage = `url(${imageData})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+        
+        // Add overlay to maintain readability
+        let overlay = document.querySelector('.background-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'background-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(26, 26, 46, 0.7);
+                z-index: -1;
+                pointer-events: none;
+            `;
+            document.body.insertBefore(overlay, document.body.firstChild);
+        }
+    }
+    
+    resetBackground() {
+        // Remove from localStorage
+        localStorage.removeItem('luckydraw_custom_background');
+        
+        // Reset to default
+        document.body.style.backgroundImage = '';
+        document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+        
+        // Remove overlay
+        const overlay = document.querySelector('.background-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        
+        // Update preview
+        const preview = document.getElementById('background-preview');
+        if (preview) {
+            const successMsg = languageManager ? languageManager.t('bgResetSuccess') : '✅ Reset to default';
+            preview.innerHTML = `<div class="preview-text">${successMsg}</div>`;
+            
+            setTimeout(() => {
+                const noCustomMsg = languageManager ? languageManager.t('bgNoCustom') : 'No custom background';
+                preview.innerHTML = `<div class="preview-text">${noCustomMsg}</div>`;
+            }, 2000);
+        }
+        
+        // Reset file input
+        const fileInput = document.getElementById('background-upload');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    }
+    
+    loadCustomBackground() {
+        const savedBackground = localStorage.getItem('luckydraw_custom_background');
+        
+        if (savedBackground) {
+            this.applyCustomBackground(savedBackground);
+            this.updateBackgroundPreview(savedBackground);
+        }
+    }
+    
+    updateBackgroundPreview(imageData) {
+        const preview = document.getElementById('background-preview');
+        if (!preview) {
+            return;
+        }
+        
+        if (imageData) {
+            preview.style.backgroundImage = `url(${imageData})`;
+            preview.style.backgroundSize = 'cover';
+            preview.style.backgroundPosition = 'center';
+            const currentBgMsg = languageManager ? languageManager.t('bgCurrentBg') : 'Current Background';
+            preview.innerHTML = `<div class="preview-overlay">${currentBgMsg}</div>`;
+        } else {
+            preview.style.backgroundImage = '';
+            const noCustomMsg = languageManager ? languageManager.t('bgNoCustom') : 'No custom background';
+            preview.innerHTML = `<div class="preview-text">${noCustomMsg}</div>`;
+        }
     }
 }
 
@@ -665,7 +1029,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter') {
+        // Only trigger shortcuts if not typing in an input field
+        const isInputField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+        
+        if (!isInputField && e.key === 'Enter') {
             e.preventDefault();
             const drawBtn = document.querySelector('.btn-draw');
             if (!drawBtn.classList.contains('spinning')) {
@@ -673,12 +1040,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        if (e.key === 'ArrowLeft') {
+        if (!isInputField && e.key === 'ArrowLeft') {
             e.preventDefault();
             document.querySelector('.btn-prev').click();
         }
         
-        if (e.key === 'ArrowRight') {
+        if (!isInputField && e.key === 'ArrowRight') {
             e.preventDefault();
             document.querySelector('.btn-next').click();
         }
@@ -719,6 +1086,7 @@ class ParticlesBackground {
         this.canvas.style.pointerEvents = 'none';
         this.canvas.style.zIndex = '0';
         this.canvas.style.opacity = '0.3';
+        this.canvas.style.overflow = 'hidden';
         
         document.body.insertBefore(this.canvas, document.body.firstChild);
         
@@ -730,8 +1098,15 @@ class ParticlesBackground {
     }
     
     resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        // Use requestAnimationFrame to batch resize operations
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        
+        this.resizeTimeout = setTimeout(() => {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }, 100);
     }
     
     createParticles() {
@@ -747,6 +1122,12 @@ class ParticlesBackground {
     }
     
     animate() {
+        // Only animate if page is visible
+        if (document.hidden) {
+            requestAnimationFrame(() => this.animate());
+            return;
+        }
+        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.particles.forEach(particle => {
@@ -780,7 +1161,7 @@ class ParticlesBackground {
             });
         });
         
-        requestAnimationFrame(() => this.animate());
+        this.animationId = requestAnimationFrame(() => this.animate());
     }
 }
 

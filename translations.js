@@ -97,7 +97,18 @@ VNPT000002`,
         btnSaveSettings: 'Lưu cấu hình',
         btnResetSettings: 'Khôi phục mặc định',
         alertSettingsSaved: 'Đã lưu cấu hình thành công!',
-        alertSettingsReset: 'Đã khôi phục cấu hình mặc định!'
+        alertSettingsReset: 'Đã khôi phục cấu hình mặc định!',
+        
+        // Background customization
+        bgCustomization: 'Tùy chỉnh hình nền',
+        bgCustomLabel: 'Hình nền tùy chỉnh:',
+        btnUploadBg: '📁 Tải lên hình nền',
+        bgHint: 'Tải lên hình ảnh nền của bạn (JPG, PNG)',
+        btnResetBg: '🔄 Khôi phục mặc định',
+        bgNoCustom: 'Chưa có hình nền tùy chỉnh',
+        bgCurrentBg: 'Hình nền hiện tại',
+        bgUploadSuccess: '✅ Đã tải lên hình nền!',
+        bgResetSuccess: '✅ Đã khôi phục hình nền mặc định'
     },
     en: {
         // Header
@@ -193,10 +204,21 @@ VNPT000002`,
         prizeThirdLabel: 'Third Prize:',
         prizeConsolationLabel: 'Consolation Prize:',
         prizePlaceholder: 'Enter prize name',
-        btnSaveSettings: 'Save Configuration',
+        btnSaveSettings: 'Save Settings',
         btnResetSettings: 'Reset to Default',
-        alertSettingsSaved: 'Configuration saved successfully!',
-        alertSettingsReset: 'Configuration reset to default!'
+        alertSettingsSaved: 'Settings saved successfully!',
+        alertSettingsReset: 'Settings reset to default!',
+        
+        // Background customization
+        bgCustomization: 'Background Customization',
+        bgCustomLabel: 'Custom Background:',
+        btnUploadBg: '📁 Upload Background',
+        bgHint: 'Upload your custom background image (JPG, PNG)',
+        btnResetBg: '🔄 Reset to Default',
+        bgNoCustom: 'No custom background',
+        bgCurrentBg: 'Current Background',
+        bgUploadSuccess: '✅ Background uploaded!',
+        bgResetSuccess: '✅ Reset to default'
     }
 };
 
@@ -227,20 +249,31 @@ class LanguageManager {
         const appTitle = document.querySelector('.logo h1');
         if (appTitle) appTitle.textContent = this.t('appTitle');
         
-        // Update prize buttons
+        // Update prize buttons - only update if they match default prize names
         const prizeBtns = document.querySelectorAll('.prize-btn');
+        const defaultPrizeNames = ['giải đặc biệt', 'giải nhất', 'giải nhì', 'giải ba', 'giải khuyến khích'];
         const prizeKeys = ['prizeSpecial', 'prizeFirst', 'prizeSecond', 'prizeThird', 'prizeConsolation'];
-        prizeBtns.forEach((btn, index) => {
-            const span = btn.querySelector('span:last-child');
-            if (span) span.textContent = this.t(prizeKeys[index]);
+        
+        prizeBtns.forEach((btn) => {
+            const prizeName = btn.dataset.prize;
+            const prizeIndex = defaultPrizeNames.indexOf(prizeName);
+            
+            // Only update if this is a default prize, leave custom prizes alone
+            if (prizeIndex >= 0) {
+                const span = btn.querySelector('span:last-child');
+                if (span) span.textContent = this.t(prizeKeys[prizeIndex]);
+            }
         });
         
         // Update current prize display
         const currentPrizeDisplay = document.querySelector('.current-prize');
         if (currentPrizeDisplay && window.luckyDraw) {
-            const prizeIndex = ['giải đặc biệt', 'giải nhất', 'giải nhì', 'giải ba', 'giải khuyến khích'].indexOf(window.luckyDraw.currentPrize);
+            const prizeIndex = defaultPrizeNames.indexOf(window.luckyDraw.currentPrize);
             if (prizeIndex >= 0) {
                 currentPrizeDisplay.textContent = this.t(prizeKeys[prizeIndex]);
+            } else {
+                // For custom prizes, just display the name in uppercase
+                currentPrizeDisplay.textContent = window.luckyDraw.currentPrize.toUpperCase();
             }
         }
         
@@ -289,14 +322,14 @@ class LanguageManager {
         const settingsTitle = document.querySelector('.settings-section h2');
         if (settingsTitle) settingsTitle.textContent = this.t('settingsTitle');
         
-        const timingTitle = document.querySelector('.settings-section .settings-group:first-child h3');
-        if (timingTitle) timingTitle.textContent = '⏱️ ' + this.t('timingSettings');
-        
-        const countTitle = document.querySelector('.settings-section .settings-group:nth-child(2) h3');
-        if (countTitle) countTitle.textContent = '🔢 ' + this.t('prizeCountSettings');
-        
-        const prizeTitle = document.querySelector('.settings-section .settings-group:last-child h3');
-        if (prizeTitle) prizeTitle.textContent = '🎁 ' + this.t('prizeSettings');
+        // Find timing settings group (first one without prize-settings-dynamic class)
+        const timingGroup = document.querySelector('.settings-section .settings-group:not(.prize-settings-dynamic)');
+        if (timingGroup) {
+            const timingTitle = timingGroup.querySelector('h3');
+            if (timingTitle && !timingTitle.textContent.includes('Background')) {
+                timingTitle.textContent = '⏱️ ' + this.t('timingSettings');
+            }
+        }
         
         // Update settings labels
         const spinDurationLabel = document.querySelector('label[for="spin-duration"]');
@@ -305,49 +338,22 @@ class LanguageManager {
         const digitDelayLabel = document.querySelector('label[for="digit-delay"]');
         if (digitDelayLabel) digitDelayLabel.textContent = this.t('digitDelay');
         
-        const spinDurationHint = document.querySelector('label[for="spin-duration"]').nextElementSibling.nextElementSibling;
-        if (spinDurationHint) spinDurationHint.textContent = this.t('spinDurationHint');
-        
-        const digitDelayHint = document.querySelector('label[for="digit-delay"]').nextElementSibling.nextElementSibling;
-        if (digitDelayHint) digitDelayHint.textContent = this.t('digitDelayHint');
-        
-        // Update prize count labels
-        const countLabels = [
-            { selector: 'label[for="count-special"]', key: 'countSpecialLabel' },
-            { selector: 'label[for="count-first"]', key: 'countFirstLabel' },
-            { selector: 'label[for="count-second"]', key: 'countSecondLabel' },
-            { selector: 'label[for="count-third"]', key: 'countThirdLabel' },
-            { selector: 'label[for="count-consolation"]', key: 'countConsolationLabel' }
-        ];
-        
-        countLabels.forEach(({ selector, key }) => {
-            const label = document.querySelector(selector);
-            if (label) label.textContent = this.t(key);
-            const hint = document.querySelector(selector)?.nextElementSibling?.nextElementSibling;
+        // Update hints with safer navigation
+        const spinDurationInput = document.getElementById('spin-duration');
+        if (spinDurationInput) {
+            const hint = spinDurationInput.nextElementSibling;
             if (hint && hint.classList.contains('setting-hint')) {
-                const prizeType = this.t(key).toLowerCase().replace(':', '');
-                hint.textContent = `${this.t('countHint')} ${prizeType}`;
+                hint.textContent = this.t('spinDurationHint');
             }
-        });
+        }
         
-        // Update prize labels
-        const prizeLabels = [
-            { selector: 'label[for="prize-special"]', key: 'prizeSpecialLabel' },
-            { selector: 'label[for="prize-first"]', key: 'prizeFirstLabel' },
-            { selector: 'label[for="prize-second"]', key: 'prizeSecondLabel' },
-            { selector: 'label[for="prize-third"]', key: 'prizeThirdLabel' },
-            { selector: 'label[for="prize-consolation"]', key: 'prizeConsolationLabel' }
-        ];
-        
-        prizeLabels.forEach(({ selector, key }) => {
-            const label = document.querySelector(selector);
-            if (label) label.textContent = this.t(key);
-        });
-        
-        // Update prize placeholders
-        document.querySelectorAll('.settings-group input[type="text"]').forEach(input => {
-            input.placeholder = this.t('prizePlaceholder');
-        });
+        const digitDelayInput = document.getElementById('digit-delay');
+        if (digitDelayInput) {
+            const hint = digitDelayInput.nextElementSibling;
+            if (hint && hint.classList.contains('setting-hint')) {
+                hint.textContent = this.t('digitDelayHint');
+            }
+        }
         
         // Update settings buttons
         const saveBtn = document.getElementById('save-settings');
@@ -355,6 +361,31 @@ class LanguageManager {
         
         const resetBtn = document.getElementById('reset-settings');
         if (resetBtn) resetBtn.innerHTML = '🔄 ' + this.t('btnResetSettings');
+        
+        // Update background customization section
+        const bgTitle = document.querySelector('.settings-section .settings-group:nth-child(4) h3');
+        if (bgTitle) bgTitle.textContent = '🎨 ' + this.t('bgCustomization');
+        
+        const bgLabel = document.querySelector('label[for="background-upload"]');
+        if (bgLabel) bgLabel.textContent = this.t('bgCustomLabel');
+        
+        const uploadBgBtn = document.getElementById('btn-upload-bg');
+        if (uploadBgBtn) uploadBgBtn.textContent = this.t('btnUploadBg');
+        
+        const bgHint = document.querySelector('.background-upload .setting-hint');
+        if (bgHint) bgHint.textContent = this.t('bgHint');
+        
+        const resetBgBtn = document.getElementById('btn-reset-bg');
+        if (resetBgBtn) resetBgBtn.textContent = this.t('btnResetBg');
+        
+        // Update background preview text if no custom background
+        const bgPreview = document.getElementById('background-preview');
+        if (bgPreview && bgPreview.querySelector('.preview-text') && !localStorage.getItem('luckydraw_custom_background')) {
+            bgPreview.querySelector('.preview-text').textContent = this.t('bgNoCustom');
+        }
+        if (bgPreview && bgPreview.querySelector('.preview-overlay')) {
+            bgPreview.querySelector('.preview-overlay').textContent = this.t('bgCurrentBg');
+        }
         
         // Update language selector active state
         document.querySelectorAll('.lang-btn').forEach(btn => {

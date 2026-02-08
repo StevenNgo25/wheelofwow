@@ -73,27 +73,8 @@
         <div class="background-animation"></div>
         
         <!-- Prize Level Selector -->
-        <div class="prize-selector">
-            <button class="prize-btn" data-prize="giải đặc biệt">
-                <span class="prize-icon">🏆</span>
-                <span>GIẢI ĐẶC BIỆT</span>
-            </button>
-            <button class="prize-btn" data-prize="giải nhất">
-                <span class="prize-icon">🥇</span>
-                <span>GIẢI NHẤT</span>
-            </button>
-            <button class="prize-btn" data-prize="giải nhì">
-                <span class="prize-icon">🥈</span>
-                <span>GIẢI NHÌ</span>
-            </button>
-            <button class="prize-btn active" data-prize="giải ba">
-                <span class="prize-icon">🥉</span>
-                <span>GIẢI BA</span>
-            </button>
-            <button class="prize-btn" data-prize="giải khuyến khích">
-                <span class="prize-icon">🎁</span>
-                <span>GIẢI KHUYẾN KHÍCH</span>
-            </button>
+        <div class="prize-selector" id="prize-selector">
+            <!-- Dynamically populated based on settings -->
         </div>
 
         <!-- Display Area -->
@@ -192,59 +173,30 @@
                     </div>
                 </div>
 
-                <!-- Prize Count Settings -->
+                <!-- Background Customization -->
                 <div class="settings-group">
-                    <h3></h3>
-                    <div class="setting-item">
-                        <label for="count-special"></label>
-                        <input type="number" id="count-special" min="1" max="100" value="1" step="1">
-                        <span class="setting-hint"></span>
+                    <h3>🎨 Background Customization</h3>
+                    <div class="setting-item background-upload">
+                        <label for="background-upload">Custom Background</label>
+                        <input type="file" id="background-upload" accept="image/*" style="display: none;">
+                        <button class="btn-upload-bg" id="btn-upload-bg">📁 Upload Background</button>
+                        <span class="setting-hint">Upload your custom background image (JPG, PNG)</span>
                     </div>
                     <div class="setting-item">
-                        <label for="count-first"></label>
-                        <input type="number" id="count-first" min="1" max="100" value="1" step="1">
-                        <span class="setting-hint"></span>
+                        <div class="background-preview" id="background-preview">
+                            <div class="preview-text">No custom background</div>
+                        </div>
                     </div>
                     <div class="setting-item">
-                        <label for="count-second"></label>
-                        <input type="number" id="count-second" min="1" max="100" value="1" step="1">
-                        <span class="setting-hint"></span>
-                    </div>
-                    <div class="setting-item">
-                        <label for="count-third"></label>
-                        <input type="number" id="count-third" min="1" max="100" value="1" step="1">
-                        <span class="setting-hint"></span>
-                    </div>
-                    <div class="setting-item">
-                        <label for="count-consolation"></label>
-                        <input type="number" id="count-consolation" min="1" max="100" value="1" step="1">
-                        <span class="setting-hint"></span>
+                        <button class="btn-reset-bg" id="btn-reset-bg">🔄 Reset to Default</button>
                     </div>
                 </div>
 
-                <!-- Prize Rewards Settings -->
-                <div class="settings-group">
-                    <h3></h3>
-                    <div class="setting-item">
-                        <label for="prize-special"></label>
-                        <input type="text" id="prize-special" value="" placeholder="">
-                    </div>
-                    <div class="setting-item">
-                        <label for="prize-first"></label>
-                        <input type="text" id="prize-first" value="" placeholder="">
-                    </div>
-                    <div class="setting-item">
-                        <label for="prize-second"></label>
-                        <input type="text" id="prize-second" value="" placeholder="">
-                    </div>
-                    <div class="setting-item">
-                        <label for="prize-third"></label>
-                        <input type="text" id="prize-third" value="" placeholder="">
-                    </div>
-                    <div class="setting-item">
-                        <label for="prize-consolation"></label>
-                        <input type="text" id="prize-consolation" value="" placeholder="">
-                    </div>
+                <!-- Dynamic Prize Settings -->
+                <div class="settings-group prize-settings-dynamic">
+                    <h3>🏆 Quản lý giải thưởng</h3>
+                    <div id="prizes-list"></div>
+                    <button class="btn-add-prize" id="btn-add-prize">+ Thêm giải thưởng</button>
                 </div>
             </div>
 
