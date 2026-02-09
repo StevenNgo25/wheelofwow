@@ -1,3 +1,8 @@
+<div class="fixed-background" [style.background-image]="luckyDraw.customBackground() ? 'url(' + luckyDraw.customBackground() + ')' : 'none'">
+    <div class="background-animation" *ngIf="!luckyDraw.customBackground()"></div>
+    <div class="background-overlay" *ngIf="luckyDraw.customBackground()"></div>
+</div>
+
 <header>
     <nav class="navbar">
         <div class="container">
@@ -12,9 +17,7 @@
     </nav>
 </header>
 
-<main class="draw-container" [style.background-image]="luckyDraw.customBackground() ? 'url(' + luckyDraw.customBackground() + ')' : 'none'">
-    <div class="background-animation" *ngIf="!luckyDraw.customBackground()"></div>
-    <div class="background-overlay" *ngIf="luckyDraw.customBackground()"></div>
+<main class="draw-container">
     
     <div class="prize-selector" id="prize-selector">
         @for (prize of luckyDraw.prizes(); track $index) {
@@ -37,7 +40,7 @@
         <div class="numbers-grid">
             @for (digit of displayedDigits(); track $index) {
                 <div class="number-box" [class.winner]="winnerInSlot() === $index">
-                    <div class="number" [class.rotating]="isSpinningRapidly()">{{ digit }}</div>
+                    <div class="number" [class.rotating]="digitSpinning()[$index]">{{ digit }}</div>
                 </div>
             }
         </div>
@@ -69,7 +72,7 @@
                     }
                     @if (group[1].length > 1) {
                         <button class="winner-toggle-btn" (click)="toggleExpand(group[0])">
-                            {{ expandedDraws().has(group[0]) ? 'Thu gọn' : 'Xem thêm (' + (group[1].length - 1) + ')' }}
+                            {{ expandedDraws().has(group[0]) ? translation.t().expand : translation.t().showMore + ' (' + (group[1].length - 1) + ')' }}
                         </button>
                     }
                 </div>
@@ -90,7 +93,7 @@
     <div class="container">
         <h2>{{ translation.t().participantsTitle }}</h2>
         <div class="input-area">
-            <textarea id="participants-input" #participantsInput placeholder="Nhập danh sách (Ví dụ: 1-2000 hoặc 001 - Nguyễn Văn A)..."></textarea>
+            <textarea id="participants-input" #participantsInput [value]="luckyDraw.participantsRaw()" [placeholder]="translation.t().inputPlaceholder"></textarea>
             <button id="load-participants" class="btn-load" (click)="luckyDraw.setParticipants(participantsInput.value)">{{ translation.t().btnLoad }}</button>
         </div>
         <div class="participants-info">
@@ -117,12 +120,12 @@
             </div>
 
             <div class="settings-group">
-                <h3>🎨 {{ translation.t().bgCustomization || 'Tùy chỉnh hình nền' }}</h3>
+                <h3>🎨 {{ translation.t().bgCustomization }}</h3>
                 <div class="background-upload">
                     <div class="setting-item">
                         <input type="file" id="background-upload" #backgroundUpload (change)="handleBackgroundUpload($event)" accept="image/*" style="display: none;">
                         <button id="btn-upload-bg" class="btn-upload-bg" (click)="backgroundUpload.click()">{{ translation.t().btnUploadBg }}</button>
-                        <span class="setting-hint">Tải lên hình ảnh nền của bạn (JPG, PNG)</span>
+                        <span class="setting-hint">{{ translation.t().uploadHint }}</span>
                     </div>
                 </div>
                 <div class="setting-item">
@@ -130,14 +133,14 @@
                 </div>
                 <div id="background-preview" class="background-preview" [style.background-image]="luckyDraw.customBackground() ? 'url(' + luckyDraw.customBackground() + ')' : 'none'">
                     <div class="preview-text" [class.success]="luckyDraw.customBackground()">
-                        {{ luckyDraw.customBackground() ? 'Đã tải lên hình nền!' : 'Chưa có hình nền tùy chỉnh' }}
+                        {{ luckyDraw.customBackground() ? translation.t().bgUploaded : translation.t().noCustomBg }}
                     </div>
-                    <div class="preview-overlay" *ngIf="luckyDraw.customBackground()">Hình nền hiện tại</div>
+                    <div class="preview-overlay" *ngIf="luckyDraw.customBackground()">{{ translation.t().currentBg }}</div>
                 </div>
             </div>
 
             <div class="settings-group prize-settings-dynamic">
-                <h3>🏆 Quản lý giải thưởng</h3>
+                <h3>🏆 {{ translation.t().managePrizes }}</h3>
                 <div id="prizes-list">
                     @for (prize of luckyDraw.prizes(); track $index) {
                         <div class="prize-item-config">
@@ -148,18 +151,18 @@
                             </div>
                             <div class="prize-item-details">
                                 <div class="prize-detail-field">
-                                    <label>Số lượng:</label>
+                                    <label>{{ translation.t().prizeCount }}</label>
                                     <input type="number" class="prize-count-input" [(ngModel)]="prize.count">
                                 </div>
                                 <div class="prize-detail-field">
-                                    <label>Phần thưởng:</label>
-                                    <input type="text" class="prize-reward-input" [(ngModel)]="prize.reward" placeholder="Nhập tên quà tặng">
+                                    <label>{{ translation.t().prizeReward }}</label>
+                                    <input type="text" class="prize-reward-input" [(ngModel)]="prize.reward" [placeholder]="translation.t().rewardPlaceholder">
                                 </div>
                             </div>
                         </div>
                     }
                 </div>
-                <button class="btn-add-prize" (click)="luckyDraw.addNewPrize()">+ Thêm giải thưởng</button>
+                <button class="btn-add-prize" (click)="luckyDraw.addNewPrize()">{{ translation.t().btnAddPrize }}</button>
             </div>
         </div>
         <div class="settings-actions">

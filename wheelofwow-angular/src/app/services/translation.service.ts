@@ -20,12 +20,33 @@ export const TRANSLATIONS: any = {
         timingSettings: 'Cài đặt thời gian',
         spinDuration: 'Thời gian quay số (giây):',
         digitDelay: 'Thời gian hiện từng số (giây):',
-        bgCustomLabel: 'Hình nền tùy chỉnh:',
+        bgCustomization: 'Tùy chỉnh hình nền',
         btnUploadBg: '📁 Tải lên hình nền',
         btnResetBg: '🔄 Khôi phục mặc định',
         btnSaveSettings: 'Lưu cấu hình',
         btnResetSettings: 'Khôi phục mặc định',
-        totalWinners: 'Tổng số người trúng'
+        totalWinners: 'Tổng số người trúng',
+        expand: 'Thu gọn',
+        showMore: 'Xem thêm',
+        uploadHint: 'Tải lên hình ảnh nền của bạn (JPG, PNG)',
+        bgUploaded: 'Đã tải lên hình nền!',
+        noCustomBg: 'Chưa có hình nền tùy chỉnh',
+        currentBg: 'Hình nền hiện tại',
+        managePrizes: 'Quản lý giải thưởng',
+        prizeCount: 'Số lượng:',
+        prizeReward: 'Phần thưởng:',
+        rewardPlaceholder: 'Nhập tên quà tặng',
+        btnAddPrize: '+ Thêm giải thưởng',
+        alertNoParticipants: 'Không còn người tham gia!',
+        alertSaved: 'Đã lưu cài đặt!',
+        confirmReset: 'Bạn có chắc muốn khôi phục cài đặt gốc?',
+        defaultParticipant: 'Người tham gia',
+        newPrizeName: 'Giải mới',
+        grandPrize: 'Giải đặc biệt',
+        firstPrize: 'Giải nhất',
+        secondPrize: 'Giải nhì',
+        thirdPrize: 'Giải ba',
+        inputPlaceholder: 'Nhập danh sách (Ví dụ: 1-2000 hoặc 001 - Nguyễn Văn A)...'
     },
     en: {
         appTitle: 'LUCKY DRAW',
@@ -45,12 +66,33 @@ export const TRANSLATIONS: any = {
         timingSettings: 'Timing Settings',
         spinDuration: 'Spin duration (seconds):',
         digitDelay: 'Digit display delay (seconds):',
-        bgCustomLabel: 'Custom Background:',
+        bgCustomization: 'Background Customization',
         btnUploadBg: '📁 Upload Background',
         btnResetBg: '🔄 Reset to Default',
         btnSaveSettings: 'Save Settings',
         btnResetSettings: 'Reset to Default',
-        totalWinners: 'Total Winners'
+        totalWinners: 'Total Winners',
+        expand: 'Collapse',
+        showMore: 'Show more',
+        uploadHint: 'Upload your background image (JPG, PNG)',
+        bgUploaded: 'Background uploaded!',
+        noCustomBg: 'No custom background',
+        currentBg: 'Current background',
+        managePrizes: 'Manage Prizes',
+        prizeCount: 'Count:',
+        prizeReward: 'Reward:',
+        rewardPlaceholder: 'Enter reward name',
+        btnAddPrize: '+ Add new prize',
+        alertNoParticipants: 'No more participants!',
+        alertSaved: 'Settings saved!',
+        confirmReset: 'Are you sure you want to reset to default settings?',
+        defaultParticipant: 'Participant',
+        newPrizeName: 'New Prize',
+        grandPrize: 'Grand Prize',
+        firstPrize: 'First Prize',
+        secondPrize: 'Second Prize',
+        thirdPrize: 'Third Prize',
+        inputPlaceholder: 'Enter list (e.g., 1-2000 or 001 - John Doe)...'
     }
 };
 
@@ -83,5 +125,17 @@ export class TranslationService {
 
   translate(key: string): string {
     return TRANSLATIONS[this.currentLang()][key] || key;
+  }
+
+  getPrizeKey(name: string): string | null {
+    const keys = ['grandPrize', 'firstPrize', 'secondPrize', 'thirdPrize', 'newPrizeName'];
+    for (const lang of ['vi', 'en']) {
+      for (const key of keys) {
+        if (TRANSLATIONS[lang][key].toLowerCase() === name.toLowerCase()) {
+          return key;
+        }
+      }
+    }
+    return null;
   }
 }

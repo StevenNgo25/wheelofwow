@@ -20,7 +20,7 @@ export class App implements OnInit {
   
   // UI State Signals
   protected readonly displayedDigits = signal<string[]>(['0', '0', '0', '0', '0', '0']);
-  protected readonly isSpinningRapidly = signal<boolean>(false);
+  protected readonly digitSpinning = signal<boolean[]>([false, false, false, false, false, false]);
   protected readonly winnerInSlot = signal<number | null>(null); 
   protected readonly showPopup = signal<boolean>(false);
   protected readonly lastWinners = signal<Winner[]>([]);
@@ -35,6 +35,7 @@ export class App implements OnInit {
 
   setLang(lang: string) {
     this.translation.setLang(lang as 'vi' | 'en');
+    this.luckyDraw.updatePrizesByLanguage();
   }
 
   async startDraw() {
@@ -47,26 +48,29 @@ export class App implements OnInit {
     const actualDrawCount = Math.min(countToDraw, remaining);
 
     if (actualDrawCount === 0) {
-      alert('Không còn người tham gia!');
+      alert(this.translation.t().alertNoParticipants);
       return;
     }
 
     this.luckyDraw.isSpinning.set(true);
-    this.isSpinningRapidly.set(true);
+    this.digitSpinning.set([true, true, true, true, true, true]);
     this.winnerInSlot.set(null);
 
     // Initial rapid spinning animation
     this.spinInterval = setInterval(() => {
-      this.displayedDigits.set(Array.from({ length: 6 }, () => Math.floor(Math.random() * 10).toString()));
+      const currentDigits = this.displayedDigits();
+      const isSpinning = this.digitSpinning();
+      const newDigits = currentDigits.map((d, i) => 
+        isSpinning[i] ? Math.floor(Math.random() * 10).toString() : d
+      );
+      this.displayedDigits.set(newDigits);
     }, 100);
 
     // After duration, stop and show winners
     const spinDuration = this.luckyDraw.settings().spinDuration * 1000;
     
     setTimeout(() => {
-      clearInterval(this.spinInterval);
-      this.isSpinningRapidly.set(false);
-      
+      // We don't clear interval here yet, we let it keep spinning for digits that haven't stopped
       const sessionWinners: Winner[] = [];
       for (let i = 0; i < actualDrawCount; i++) {
         const winner = this.luckyDraw.drawOne();
@@ -79,6 +83,8 @@ export class App implements OnInit {
 
   private displayWinnersSequentially(winners: Winner[], index: number) {
     if (index >= winners.length) {
+      clearInterval(this.spinInterval); // Finally clear when all winners drawn
+      this.digitSpinning.set([false, false, false, false, false, false]);
       this.luckyDraw.incrementSession();
       this.luckyDraw.confirmWinners(winners);
       this.luckyDraw.isSpinning.set(false);
@@ -101,8 +107,18 @@ export class App implements OnInit {
     const digits = code.split('');
     const digitDelay = this.luckyDraw.settings().digitDelay * 1000;
 
+    // Reset spinning for new winner
+    this.digitSpinning.set([true, true, true, true, true, true]);
+
     digits.forEach((digit, i) => {
       setTimeout(() => {
+        // Stop spinning for this digit
+        this.digitSpinning.update(s => {
+          const newS = [...s];
+          newS[i] = false;
+          return newS;
+        });
+
         this.displayedDigits.update((d: string[]) => {
           const newDigits = [...d];
           newDigits[i] = digit;
@@ -161,11 +177,11 @@ export class App implements OnInit {
 
   saveSettings() {
     this.luckyDraw.saveToStorage();
-    alert('Đã lưu cài đặt!');
+    alert(this.translation.t().alertSaved);
   }
 
   resetSettings() {
-    if (confirm('Bạn có chắc muốn khôi phục cài đặt gốc?')) {
+    if (confirm(this.translation.t().confirmReset)) {
       localStorage.removeItem('luckydraw_settings');
       localStorage.removeItem('luckydraw_custom_background');
       window.location.reload();

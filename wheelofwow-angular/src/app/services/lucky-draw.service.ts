@@ -1,6 +1,7 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { StorageService } from './storage.service';
+import { TranslationService } from './translation.service';
 
 export interface Participant {
   code: string;
@@ -34,6 +35,7 @@ export class LuckyDrawService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly storage = inject(StorageService);
+  private readonly translation = inject(TranslationService);
 
   private readonly STORAGE_KEYS = {
     PARTICIPANTS: 'luckydraw_participants',
@@ -42,7 +44,8 @@ export class LuckyDrawService {
     PRIZE_DRAW_COUNT: 'luckydraw_prizecount',
     DRAW_SESSION_ID: 'luckydraw_drawsessionid',
     SETTINGS: 'luckydraw_settings',
-    BACKGROUND: 'luckydraw_custom_background'
+    BACKGROUND: 'luckydraw_custom_background',
+    PARTICIPANTS_RAW: 'luckydraw_participants_raw'
   };
 
   // Signals for state management
@@ -55,6 +58,7 @@ export class LuckyDrawService {
   prizeDrawCount = signal<Record<string, number>>({});
   drawSessionId = signal<number>(0);
   customBackground = signal<string | null>(null);
+  participantsRaw = signal<string>('');
   
   settings = signal<Settings>({
     spinDuration: 10,
@@ -71,6 +75,31 @@ export class LuckyDrawService {
     this.loadFromStorage();
   }
 
+  updatePrizesByLanguage() {
+    const currentPrizes = [...this.prizes()];
+    const currentPrizeName = this.currentPrize();
+    let updated = false;
+
+    currentPrizes.forEach(p => {
+      const key = this.translation.getPrizeKey(p.name);
+      if (key) {
+        const newName = this.translation.t()[key];
+        if (p.name !== newName) {
+          if (currentPrizeName === p.name) {
+            this.currentPrize.set(newName);
+          }
+          p.name = newName;
+          updated = true;
+        }
+      }
+    });
+
+    if (updated) {
+      this.prizes.set(currentPrizes);
+      this.updateSettingsPrizes();
+    }
+  }
+
   loadFromStorage() {
     if (!this.isBrowser) return;
 
@@ -81,6 +110,7 @@ export class LuckyDrawService {
     const dsid = this.storage.getData<number>(this.STORAGE_KEYS.DRAW_SESSION_ID) || 0;
     const s = this.storage.getData<Settings>(this.STORAGE_KEYS.SETTINGS);
     const bg = this.storage.getData<string>(this.STORAGE_KEYS.BACKGROUND);
+    const praw = this.storage.getData<string>(this.STORAGE_KEYS.PARTICIPANTS_RAW) || '';
 
     this.participants.set(p);
     this.remainingParticipants.set(r);
@@ -91,9 +121,18 @@ export class LuckyDrawService {
       this.settings.set(s);
       this.prizes.set(s.prizes);
     } else {
-      this.prizes.set(this.settings().prizes);
+      // Initialize with translated defaults if no settings found
+      const defaultPrizes: Prize[] = [
+        { name: this.translation.t().grandPrize, icon: '🏆', count: 1, reward: '' },
+        { name: this.translation.t().firstPrize, icon: '🥇', count: 1, reward: '' },
+        { name: this.translation.t().secondPrize, icon: '🥈', count: 1, reward: '' },
+        { name: this.translation.t().thirdPrize, icon: '🥉', count: 1, reward: '' }
+      ];
+      this.settings.update((curr: Settings) => ({ ...curr, prizes: defaultPrizes }));
+      this.prizes.set(defaultPrizes);
     }
     this.customBackground.set(bg);
+    this.participantsRaw.set(praw);
 
     if (this.prizes().length > 0 && !this.currentPrize()) {
       this.currentPrize.set(this.prizes()[0].name);
@@ -109,6 +148,7 @@ export class LuckyDrawService {
     this.storage.setData(this.STORAGE_KEYS.DRAW_SESSION_ID, this.drawSessionId());
     this.storage.setData(this.STORAGE_KEYS.SETTINGS, this.settings());
     this.storage.setData(this.STORAGE_KEYS.BACKGROUND, this.customBackground());
+    this.storage.setData(this.STORAGE_KEYS.PARTICIPANTS_RAW, this.participantsRaw());
   }
 
   setParticipants(text: string) {
@@ -125,7 +165,7 @@ export class LuckyDrawService {
         const toNumber = parseInt(rangeMatch[2]);
         if (fromNumber <= toNumber) {
           for (let i = fromNumber; i <= toNumber; i++) {
-            newParticipants.push({ code: String(i), name: 'Người tham gia' });
+            newParticipants.push({ code: String(i), name: this.translation.t().defaultParticipant });
           }
         }
       } else {
@@ -133,12 +173,13 @@ export class LuckyDrawService {
         if (parts.length >= 2) {
           newParticipants.push({ code: parts[0], name: parts.slice(1).join(' - ') });
         } else {
-          newParticipants.push({ code: line, name: 'Người tham gia' });
+          newParticipants.push({ code: line, name: this.translation.t().defaultParticipant });
         }
       }
     });
 
     this.participants.set(newParticipants);
+    this.participantsRaw.set(text);
     this.remainingParticipants.set([...newParticipants]);
     this.winners.set([]);
     this.prizeDrawCount.set({});
@@ -188,7 +229,7 @@ export class LuckyDrawService {
   }
 
   addNewPrize() {
-    this.prizes.update((p: Prize[]) => [...p, { name: 'Giải mới', icon: '🎁', count: 1, reward: '' }]);
+    this.prizes.update((p: Prize[]) => [...p, { name: this.translation.t().newPrizeName, icon: '🎁', count: 1, reward: '' }]);
     this.updateSettingsPrizes();
   }
 
