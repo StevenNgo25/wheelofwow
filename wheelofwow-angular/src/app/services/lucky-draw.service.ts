@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal, effect } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { StorageService } from './storage.service';
 import { TranslationService } from './translation.service';
@@ -73,6 +73,12 @@ export class LuckyDrawService {
 
   constructor() {
     this.loadFromStorage();
+    
+    // Automatically update prize names when language changes
+    effect(() => {
+      this.translation.currentLang(); // dependency registration
+      this.updatePrizesByLanguage();
+    });
   }
 
   updatePrizesByLanguage() {

@@ -1,0 +1,73 @@
+<div class="pricing-container">
+  <div class="pricing-header">
+    <h1>{{ translation.t().pricingTitle }}</h1>
+    <p>{{ translation.t().pricingSubtitle }}</p>
+  </div>
+
+  <div class="pricing-plans">
+    <!-- Weekly Plan -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <h3>{{ translation.t().priceWeekly }}</h3>
+        <div class="price">
+          <span class="currency">{{ translation.t().priceWeeklyValue }}</span>
+          <span class="period">{{ translation.t().pricePerWeek }}</span>
+        </div>
+      </div>
+      <ul class="features">
+        <li>✅ {{ translation.t().feature1 }}</li>
+        <li>✅ {{ translation.t().feature2 }}</li>
+        <li>✅ {{ translation.t().feature3 }}</li>
+        <li>✅ {{ translation.t().feature4 }}</li>
+        <li>✅ {{ translation.t().feature5 }}</li>
+      </ul>
+      <button class="btn-choose">{{ translation.t().btnChoosePlan }}</button>
+    </div>
+
+    <!-- Monthly Plan (Save 15%) -->
+    <div class="plan-card popular">
+      <div class="badge">{{ translation.t().save15 }}</div>
+      <div class="plan-header">
+        <h3>{{ translation.t().priceMonthly }}</h3>
+        <div class="price">
+          <span class="currency">{{ translation.t().priceMonthlyValue }}</span>
+          <span class="period">{{ translation.t().pricePerMonth }}</span>
+        </div>
+        <!-- <div class="original-price">$28</div> -->
+      </div>
+      <ul class="features">
+        <li>✅ {{ translation.t().feature1 }}</li>
+        <li>✅ {{ translation.t().feature2 }}</li>
+        <li>✅ {{ translation.t().feature3 }}</li>
+        <li>✅ {{ translation.t().feature4 }}</li>
+        <li>✅ {{ translation.t().feature5 }}</li>
+      </ul>
+      <button class="btn-choose primary">{{ translation.t().btnChoosePlan }}</button>
+    </div>
+
+    <!-- Yearly Plan (Save 25%) -->
+    <div class="plan-card">
+      <div class="badge">{{ translation.t().save25 }}</div>
+      <div class="plan-header">
+        <h3>{{ translation.t().priceYearly }}</h3>
+        <div class="price">
+          <span class="currency">{{ translation.t().priceYearlyValue }}</span>
+          <span class="period">{{ translation.t().pricePerYear }}</span>
+        </div>
+         <!-- <div class="original-price">$364</div> -->
+      </div>
+      <ul class="features">
+        <li>✅ {{ translation.t().feature1 }}</li>
+        <li>✅ {{ translation.t().feature2 }}</li>
+        <li>✅ {{ translation.t().feature3 }}</li>
+        <li>✅ {{ translation.t().feature4 }}</li>
+        <li>✅ {{ translation.t().feature5 }}</li>
+      </ul>
+      <button class="btn-choose">{{ translation.t().btnChoosePlan }}</button>
+    </div>
+  </div>
+
+  <div class="enterprise-contact">
+    <a href="mailto:sales@wheelofwow.com" class="contact-link">{{ translation.t().contactSales }}</a>
+  </div>
+</div>

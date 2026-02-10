@@ -14,8 +14,18 @@ import { LoginModalComponent } from '../../auth/login-modal/login-modal.componen
 export class Header {
   protected readonly translation = inject(TranslationService);
   showLogin = signal(false);
+  isMenuOpen = signal(false);
+
+  toggleMenu() {
+    this.isMenuOpen.update((v) => !v);
+  }
+
+  closeMenu() {
+    this.isMenuOpen.set(false);
+  }
 
   setLang(lang: string) {
     this.translation.setLang(lang as 'vi' | 'en');
+    this.closeMenu();
   }
 }
