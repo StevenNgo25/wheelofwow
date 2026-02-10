@@ -1,1 +1,68 @@
-<p>settings-panel works!</p>
+<section class="settings-section">
+    <div class="container">
+        <h2>{{ translation.t().settingsTitle }}</h2>
+        <div class="settings-grid">
+            <div class="settings-group">
+                <h3>⏱️ {{ translation.t().timingSettings }}</h3>
+                <div class="setting-item">
+                    <label for="spin-duration">{{ translation.t().spinDuration }}</label>
+                    <input type="number" id="spin-duration" [(ngModel)]="luckyDraw.settings().spinDuration" min="3" max="30">
+                </div>
+                <div class="setting-item">
+                    <label for="digit-delay">{{ translation.t().digitDelay }}</label>
+                    <input type="number" id="digit-delay" [(ngModel)]="luckyDraw.settings().digitDelay" min="0.5" max="5" step="0.5">
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3>🎨 {{ translation.t().bgCustomization }}</h3>
+                <div class="background-upload">
+                    <div class="setting-item">
+                        <input type="file" id="background-upload" #backgroundUpload (change)="handleBackgroundUpload($event)" accept="image/*" style="display: none;">
+                        <button id="btn-upload-bg" class="btn-upload-bg" (click)="backgroundUpload.click()">{{ translation.t().btnUploadBg }}</button>
+                        <span class="setting-hint">{{ translation.t().uploadHint }}</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <button id="btn-reset-bg" class="btn-reset-bg" (click)="luckyDraw.setBackground(null)">{{ translation.t().btnResetBg }}</button>
+                </div>
+                <div id="background-preview" class="background-preview" [style.background-image]="luckyDraw.customBackground() ? 'url(' + luckyDraw.customBackground() + ')' : 'none'">
+                    <div class="preview-text" [class.success]="luckyDraw.customBackground()">
+                        {{ luckyDraw.customBackground() ? translation.t().bgUploaded : translation.t().noCustomBg }}
+                    </div>
+                    <div class="preview-overlay" *ngIf="luckyDraw.customBackground()">{{ translation.t().currentBg }}</div>
+                </div>
+            </div>
+
+            <div class="settings-group prize-settings-dynamic">
+                <h3>🏆 {{ translation.t().managePrizes }}</h3>
+                <div id="prizes-list">
+                    @for (prize of luckyDraw.prizes(); track $index) {
+                        <div class="prize-item-config">
+                            <div class="prize-item-header">
+                                <input class="prize-icon-input" [(ngModel)]="prize.icon">
+                                <input class="prize-name-input" [(ngModel)]="prize.name">
+                                <button class="btn-remove-prize" (click)="luckyDraw.removePrize($index)">❌</button>
+                            </div>
+                            <div class="prize-item-details">
+                                <div class="prize-detail-field">
+                                    <label>{{ translation.t().prizeCount }}</label>
+                                    <input type="number" class="prize-count-input" [(ngModel)]="prize.count">
+                                </div>
+                                <div class="prize-detail-field">
+                                    <label>{{ translation.t().prizeReward }}</label>
+                                    <input type="text" class="prize-reward-input" [(ngModel)]="prize.reward" [placeholder]="translation.t().rewardPlaceholder">
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button class="btn-add-prize" (click)="luckyDraw.addNewPrize()">{{ translation.t().btnAddPrize }}</button>
+            </div>
+        </div>
+        <div class="settings-actions">
+            <button id="save-settings" class="btn-save-settings" (click)="saveSettings()">{{ translation.t().btnSaveSettings }}</button>
+            <button id="reset-settings" class="btn-reset-settings" (click)="resetSettings()">{{ translation.t().btnResetSettings }}</button>
+        </div>
+    </div>
+</section>

@@ -1,1 +1,21 @@
-<p>winners-list works!</p>
+<div class="winners-section">
+    <h3>{{ translation.t().winnersTitle }}</h3>
+    <div class="winners-list">
+        @for (group of getGroupedWinners(); track group[0]) {
+            <div class="winner-draw-group" [attr.data-draw-id]="group[0]">
+                @for (winner of (expandedDraws().has(group[0]) ? group[1] : group[1].slice(0, 1)); track $index) {
+                    <div class="winner-item">
+                        <div class="winner-number">{{ winner.code }}</div>
+                        <div class="winner-name">{{ winner.name }}</div>
+                        <div class="winner-prize">{{ winner.prize | uppercase }}</div>
+                    </div>
+                }
+                @if (group[1].length > 1) {
+                    <button class="winner-toggle-btn" (click)="toggleExpand(group[0])">
+                        {{ expandedDraws().has(group[0]) ? translation.t().expand : translation.t().showMore + ' (' + (group[1].length - 1) + ')' }}
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</div>

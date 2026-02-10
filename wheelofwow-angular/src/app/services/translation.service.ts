@@ -46,7 +46,9 @@ export const TRANSLATIONS: any = {
         firstPrize: 'Giải nhất',
         secondPrize: 'Giải nhì',
         thirdPrize: 'Giải ba',
-        inputPlaceholder: 'Nhập danh sách (Ví dụ: 1-2000 hoặc 001 - Nguyễn Văn A)...'
+        inputPlaceholder: 'Nhập danh sách người tham gia...\n\nVí dụ:\n- Dải số: 1-2000\n- Tên: Nguyễn Văn A, Trần Thị B\n- Mã - Tên: 001 - Nguyễn Văn A\n(Mỗi mục trên một dòng)',
+        seoDescription: 'Hệ thống quay số trúng thưởng online miễn phí, công bằng và minh bạch. Dễ sử dụng cho mọi sự kiện, mini game và hội nghị.',
+        seoKeywords: 'quay số trúng thưởng, lucky draw, quay thưởng online, hệ thống quay số, quay số may mắn, mini game, quay thưởng sự kiện'
     },
     en: {
         appTitle: 'LUCKY DRAW',
@@ -92,7 +94,9 @@ export const TRANSLATIONS: any = {
         firstPrize: 'First Prize',
         secondPrize: 'Second Prize',
         thirdPrize: 'Third Prize',
-        inputPlaceholder: 'Enter list (e.g., 1-2000 or 001 - John Doe)...'
+        inputPlaceholder: 'Enter participant list...\n\nExample:\n- Number range: 1-2000\n- Names: John Doe, Mary Smith\n- Code - Name: 001 - John Doe\n(Each entry on a new line)',
+        seoDescription: 'Free, fair, and transparent online lucky draw system. Easy to use for events, conferences, and mini-games.',
+        seoKeywords: 'lucky draw, online draw, prize draw, random draw, event raffle, mini game'
     }
 };
 

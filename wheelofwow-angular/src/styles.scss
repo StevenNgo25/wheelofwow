@@ -187,12 +187,12 @@ header {
 /* Main Draw Container */
 .draw-container {
     position: relative;
-    min-height: 80vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem 1rem;
+    padding: 2rem 1rem;
 }
 
 .background-animation {
@@ -1433,6 +1433,19 @@ footer {
     .settings-group {
         padding: 1.5rem;
     }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    .prize-item-details {
+        grid-template-columns: 1fr;
+    }
+
+    .prize-item-header {
+        flex-wrap: wrap;
+    }
+
 
     .settings-actions {
         flex-direction: column;

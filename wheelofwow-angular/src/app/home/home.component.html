@@ -1,0 +1,12 @@
+<div class="fixed-background" [style.background-image]="luckyDraw.customBackground() ? 'url(' + luckyDraw.customBackground() + ')' : 'none'">
+    <div class="background-animation" *ngIf="!luckyDraw.customBackground()"></div>
+    <div class="background-overlay" *ngIf="luckyDraw.customBackground()"></div>
+</div>
+
+<main class="draw-container">
+    <app-draw-area></app-draw-area>
+    <app-winners-list></app-winners-list>
+</main>
+
+<app-participant-input></app-participant-input>
+<app-settings-panel></app-settings-panel>

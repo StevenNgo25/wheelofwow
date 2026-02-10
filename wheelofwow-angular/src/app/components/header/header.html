@@ -1,1 +1,27 @@
-<p>header works!</p>
+<header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a routerLink="/" class="logo-link">
+                    <h1>{{ translation.t().appTitle }}</h1>
+                </a>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
+                <li><a routerLink="/guide" routerLinkActive="active">Hướng dẫn sử dụng</a></li>
+                <li><a routerLink="/pricing" routerLinkActive="active">Phí sử dụng</a></li>
+                <li><button class="btn-login" (click)="showLogin.set(true)">Đăng nhập</button></li>
+            </ul>
+    
+            <div class="language-selector">
+                <button class="lang-btn" [class.active]="translation.currentLang() === 'vi'" (click)="setLang('vi')">🇻🇳 VN</button>
+                <button class="lang-btn" [class.active]="translation.currentLang() === 'en'" (click)="setLang('en')">🇬🇧 EN</button>
+            </div>
+        </div>
+    </nav>
+</header>
+    
+@if (showLogin()) {
+    <app-login-modal (close)="showLogin.set(false)"></app-login-modal>
+}

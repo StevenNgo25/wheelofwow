@@ -1,1 +1,68 @@
-<p>draw-area works!</p>
+<div class="prize-selector" id="prize-selector">
+    @for (prize of luckyDraw.prizes(); track $index) {
+        <button class="prize-btn" [class.active]="luckyDraw.currentPrize() === prize.name" (click)="luckyDraw.currentPrize.set(prize.name)">
+            <span class="prize-icon">{{ prize.icon }}</span>
+            <span>{{ prize.name | uppercase }}</span>
+        </button>
+    }
+</div>
+
+<div class="display-area">
+    <h2 class="current-prize">
+        {{ (luckyDraw.currentPrize() || '') | uppercase }}
+        @if (luckyDraw.prizeDrawCount()[luckyDraw.currentPrize() || '']) {
+            ({{ luckyDraw.prizeDrawCount()[luckyDraw.currentPrize() || ''] }})
+        }
+    </h2>
+    <p class="instruction">{{ translation.t().instruction }}</p>
+    
+    <div class="numbers-grid">
+        @for (digit of displayedDigits(); track $index) {
+            <div class="number-box" [class.winner]="winnerInSlot() === $index">
+                <div class="number" [class.rotating]="digitSpinning()[$index]">{{ digit }}</div>
+            </div>
+        }
+    </div>
+
+    <div class="controls">
+        <button class="btn-prev" (click)="luckyDraw.navigatePrize(-1)">
+            <span>◄</span>
+        </button>
+        <button class="btn-draw" [class.spinning]="luckyDraw.isSpinning()" (click)="startDraw()">
+            <span>{{ luckyDraw.isSpinning() ? translation.t().btnDrawing : translation.t().btnDraw }}</span>
+        </button>
+        <button class="btn-next" (click)="luckyDraw.navigatePrize(1)">
+            <span>►</span>
+        </button>
+    </div>
+</div>
+
+<div class="prize-icons-display">
+    @for (prize of luckyDraw.prizes(); track $index) {
+        <div class="prize-icon-item" *ngIf="$index < 6">
+            {{ prize.icon }}
+        </div>
+    }
+</div>
+
+<!-- Congratulations Popup -->
+<div class="popup-overlay" [class.show]="showPopup()">
+    <div class="popup-content">
+        <div class="popup-icon">🎉</div>
+        <h2 class="popup-title">{{ translation.t().congratulations }}</h2>
+        <div class="popup-subtitle">{{ translation.t().prizeLabel }} {{ (lastWinners().length > 0 ? lastWinners()[0].prize : '') | uppercase }}</div>
+        <div class="popup-count">{{ translation.t().totalWinners }}: {{ lastWinners().length }} {{ translation.t().people }}</div>
+        <div class="popup-winners-container" [class.multi-column]="lastWinners().length > 6">
+            @for (winner of lastWinners(); track $index) {
+                <div class="popup-winner-item">
+                    <div class="popup-winner-position">#{{ $index + 1 }}</div>
+                    <div class="popup-winner-details">
+                        <div class="popup-number">{{ winner.code }}</div>
+                        <div class="popup-name">{{ winner.name }}</div>
+                    </div>
+                </div>
+            }
+        </div>
+        <button class="popup-close" (click)="showPopup.set(false)">{{ translation.t().btnClose }}</button>
+    </div>
+</div>

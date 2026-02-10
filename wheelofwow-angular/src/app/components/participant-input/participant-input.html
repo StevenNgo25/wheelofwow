@@ -1,1 +1,13 @@
-<p>participant-input works!</p>
+<section class="participants-section">
+    <div class="container">
+        <h2>{{ translation.t().participantsTitle }}</h2>
+        <div class="input-area">
+            <textarea id="participants-input" #participantsInput [value]="luckyDraw.participantsRaw()" [placeholder]="translation.t().inputPlaceholder"></textarea>
+            <button id="load-participants" class="btn-load" (click)="luckyDraw.setParticipants(participantsInput.value)">{{ translation.t().btnLoad }}</button>
+        </div>
+        <div class="participants-info">
+            <p>{{ translation.t().totalParticipants }} <strong id="total-participants">{{ luckyDraw.participants().length }}</strong></p>
+            <p>{{ translation.t().remainingParticipants }} <strong id="remaining-participants">{{ luckyDraw.remainingParticipants().length }}</strong></p>
+        </div>
+    </div>
+</section>

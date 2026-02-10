@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stevenngo25.github.io/wheelofwow/sitemap.xml
