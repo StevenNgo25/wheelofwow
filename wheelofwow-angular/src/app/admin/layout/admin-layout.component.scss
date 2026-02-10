@@ -1,0 +1,158 @@
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6f9;
+  color: #333;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: #343a40;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+
+  .sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #4b545c;
+    h2 {
+      font-size: 1.25rem;
+      margin: 0;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      
+      .badge {
+        font-size: 0.75rem;
+        background: #ff6b35;
+        padding: 2px 6px;
+        border-radius: 4px;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .sidebar-nav {
+    padding: 1rem 0;
+    overflow-y: auto;
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: #c2c7d0;
+        text-decoration: none;
+        transition: all 0.2s;
+        gap: 10px;
+
+        &:hover, &.active {
+          background-color: #494e53;
+          color: #fff;
+        }
+
+        .icon { width: 20px; text-align: center; }
+
+        &.back-home {
+          margin-top: 2rem;
+          border-top: 1px solid #4b545c;
+          color: #adb5bd;
+          &:hover { color: #fff; }
+        }
+      }
+    }
+  }
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Prevents overflow */
+}
+
+.top-bar {
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  color: #333;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 900;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+
+  &.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.content-body {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Responsive Logic */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+  
+  .content-body {
+    padding: 1rem;
+  }
+}

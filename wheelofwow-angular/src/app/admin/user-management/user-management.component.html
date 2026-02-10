@@ -1,0 +1,58 @@
+<div class="card">
+  <div class="header">
+    <h3>Quản lý Users</h3>
+    <input type="text" placeholder="Tìm kiếm user..." class="search-box" />
+  </div>
+
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Avatar</th>
+          <th>Tên</th>
+          <th>Email</th>
+          <th>Quyền</th>
+          <th>Gói</th>
+          <th>Ngày tạo</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <tr>
+            <td colspan="7" style="text-align: center">Đang tải...</td>
+          </tr>
+        } @else {
+          @for (user of users(); track user.id) {
+            <tr>
+              <td data-label="Avatar">
+                <div class="avatar">
+                  <img
+                    [src]="user.avatar_url"
+                    *ngIf="user.avatar_url"
+                    style="width: 100%; height: 100%; border-radius: 50%"
+                  />
+                  <span *ngIf="!user.avatar_url">{{ user.full_name?.charAt(0) || 'U' }}</span>
+                </div>
+              </td>
+              <td data-label="Tên">{{ user.full_name }}</td>
+              <td data-label="Email">{{ user.email }}</td>
+              <td data-label="Quyền">
+                <span
+                  class="badge"
+                  [class.admin]="user.role === 'admin'"
+                  [class.user]="user.role === 'user'"
+                >
+                  {{ user.role }}
+                </span>
+              </td>
+              <td data-label="Gói">{{ user.subscription_tier }}</td>
+              <td data-label="Ngày tạo">{{ user.created_at | date: 'short' }}</td>
+              <td data-label="Hành động"><button class="btn-sm">Sửa</button></td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

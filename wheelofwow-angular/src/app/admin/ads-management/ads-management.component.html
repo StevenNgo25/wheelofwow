@@ -1,0 +1,45 @@
+<div class="card">
+  <h3>Cấu hình Quảng cáo (Google AdSense)</h3>
+
+  <div class="form-group">
+    <label> <input type="checkbox" [(ngModel)]="config.enabled" /> Bật Google AdSense </label>
+  </div>
+
+  <div class="form-group">
+    <label>Client ID (ca-pub-xxxx)</label>
+    <input
+      type="text"
+      [(ngModel)]="config.client_id"
+      placeholder="ca-pub-..."
+      [disabled]="!config.enabled"
+    />
+  </div>
+
+  <h4>Vị trí quảng cáo (Slot IDs)</h4>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Home Banner Top</label>
+      <input
+        type="text"
+        [(ngModel)]="config.slots.home_banner"
+        placeholder="Slot ID"
+        [disabled]="!config.enabled"
+      />
+    </div>
+    <div class="form-group">
+      <label>Kết quả trúng thưởng (Popup)</label>
+      <input
+        type="text"
+        [(ngModel)]="config.slots.result_popup"
+        placeholder="Slot ID"
+        [disabled]="!config.enabled"
+      />
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-save" (click)="saveConfig()" [disabled]="loading()">
+      {{ loading() ? 'Đang lưu...' : 'Lưu cấu hình' }}
+    </button>
+  </div>
+</div>

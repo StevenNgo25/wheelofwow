@@ -1,34 +1,79 @@
 <header>
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">
-                <a routerLink="/" class="logo-link">
-                    <h1>{{ translation.t().appTitle }}</h1>
-                </a>
-                <button class="hamburger" (click)="toggleMenu()" [class.active]="isMenuOpen()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-            
-            <div class="nav-menu" [class.active]="isMenuOpen()">
-                <ul class="nav-links">
-                    <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">{{ translation.t().navHome }}</a></li>
-                    <li><a routerLink="/guide" routerLinkActive="active" (click)="closeMenu()">{{ translation.t().navGuide }}</a></li>
-                    <li><a routerLink="/pricing" routerLinkActive="active" (click)="closeMenu()">{{ translation.t().navPricing }}</a></li>
-                    <li><button class="btn-login" (click)="showLogin.set(true); closeMenu()">{{ translation.t().navLogin }}</button></li>
-                </ul>
-        
-                <div class="language-selector">
-                    <button class="lang-btn" [class.active]="translation.currentLang() === 'vi'" (click)="setLang('vi')">🇻🇳 VN</button>
-                    <button class="lang-btn" [class.active]="translation.currentLang() === 'en'" (click)="setLang('en')">🇬🇧 EN</button>
-                </div>
-            </div>
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">
+        <a routerLink="/" class="logo-link">
+          <h1>{{ translation.t().appTitle }}</h1>
+        </a>
+        <button class="hamburger" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <div class="nav-menu" [class.active]="isMenuOpen()">
+        <ul class="nav-links">
+          <li>
+            <a
+              routerLink="/"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="closeMenu()"
+              >{{ translation.t().navHome }}</a
+            >
+          </li>
+          <li>
+            <a routerLink="/guide" routerLinkActive="active" (click)="closeMenu()">{{
+              translation.t().navGuide
+            }}</a>
+          </li>
+          <li>
+            <a routerLink="/pricing" routerLinkActive="active" (click)="closeMenu()">{{
+              translation.t().navPricing
+            }}</a>
+          </li>
+          @if (user()) {
+            <li class="user-menu">
+              <div class="user-info">
+                <img [src]="user()?.user_metadata?.avatar_url" alt="Avatar" />
+                <span>{{ user()?.user_metadata?.full_name }}</span>
+              </div>
+              @if (isAdmin()) {
+                <a routerLink="/admin" class="btn-admin" (click)="closeMenu()">Admin</a>
+              }
+              <button class="btn-logout" (click)="logout()">Logout</button>
+            </li>
+          } @else {
+            <li>
+              <button class="btn-login" (click)="showLogin.set(true); closeMenu()">
+                {{ translation.t().navLogin }}
+              </button>
+            </li>
+          }
+        </ul>
+
+        <div class="language-selector">
+          <button
+            class="lang-btn"
+            [class.active]="translation.currentLang() === 'vi'"
+            (click)="setLang('vi')"
+          >
+            🇻🇳 VN
+          </button>
+          <button
+            class="lang-btn"
+            [class.active]="translation.currentLang() === 'en'"
+            (click)="setLang('en')"
+          >
+            🇬🇧 EN
+          </button>
         </div>
-    </nav>
+      </div>
+    </div>
+  </nav>
 </header>
-    
+
 @if (showLogin()) {
-    <app-login-modal (close)="showLogin.set(false)"></app-login-modal>
+  <app-login-modal (close)="showLogin.set(false)"></app-login-modal>
 }

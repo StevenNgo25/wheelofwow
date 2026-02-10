@@ -1,0 +1,48 @@
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="isSidebarOpen">
+    <div class="sidebar-header">
+      <h2>WheelOfWow <span class="badge">Admin</span></h2>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeSidebar()">
+            <span class="icon">📊</span> Dashboard
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/users" routerLinkActive="active" (click)="closeSidebar()">
+            <span class="icon">👥</span> Users
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/ads" routerLinkActive="active" (click)="closeSidebar()">
+            <span class="icon">📢</span> Ads Config
+          </a>
+        </li>
+        <li>
+          <a routerLink="/" class="back-home"> <span class="icon">🏠</span> Back to Site </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Overlay -->
+  <div class="sidebar-overlay" [class.show]="isSidebarOpen" (click)="closeSidebar()"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="top-bar">
+      <button class="menu-toggle" (click)="toggleSidebar()">☰</button>
+      <div class="breadcrumb">Admin Panel</div>
+      <div class="user-profile">
+        <!-- User info/logout here -->
+      </div>
+    </header>
+
+    <div class="content-body">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
