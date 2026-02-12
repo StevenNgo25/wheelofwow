@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stevenngo25.github.io/wheelofwow/sitemap.xml
+Sitemap: https://wheelofwow.vercel.app/wheelofwow/sitemap.xml

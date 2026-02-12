@@ -102,8 +102,8 @@ Website đã được tối ưu SEO với:
 
 1. **Submit Sitemap**:
    - Vào [Google Search Console](https://search.google.com/search-console)
-   - Thêm property: `https://stevenngo25.github.io/wheelofwow`
-   - Submit sitemap: `https://stevenngo25.github.io/wheelofwow/sitemap.xml`
+   - Thêm property: `https://wheelofwow.vercel.app/wheelofwow`
+   - Submit sitemap: `https://wheelofwow.vercel.app/wheelofwow/sitemap.xml`
 
 2. **Tạo Backlinks**:
    - Chia sẻ trên social media
