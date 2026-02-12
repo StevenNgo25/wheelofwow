@@ -3,7 +3,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { TranslationService } from './translation.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SeoService {
   private titleService = inject(Title);
@@ -12,7 +12,7 @@ export class SeoService {
 
   updateMetaTags() {
     const t = this.translation.t();
-    const title = `${t.appTitle} - Quay Số Trúng Thưởng Online`;
+    const title = `${t.appTitle} - ${this.translation.currentLang() === 'vi' ? 'Quay Số Trúng Thưởng Online' : 'Online Lucky Draw System'}`;
     const description = t.seoDescription;
     const keywords = t.seoKeywords;
 
@@ -25,7 +25,7 @@ export class SeoService {
     // Open Graph
     this.metaService.updateTag({ property: 'og:title', content: title });
     this.metaService.updateTag({ property: 'og:description', content: description });
-    
+
     // Twitter
     this.metaService.updateTag({ name: 'twitter:title', content: title });
     this.metaService.updateTag({ name: 'twitter:description', content: description });

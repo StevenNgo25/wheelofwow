@@ -29,7 +29,7 @@ export interface Settings {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LuckyDrawService {
   private readonly platformId = inject(PLATFORM_ID);
@@ -45,7 +45,7 @@ export class LuckyDrawService {
     DRAW_SESSION_ID: 'luckydraw_drawsessionid',
     SETTINGS: 'luckydraw_settings',
     BACKGROUND: 'luckydraw_custom_background',
-    PARTICIPANTS_RAW: 'luckydraw_participants_raw'
+    PARTICIPANTS_RAW: 'luckydraw_participants_raw',
   };
 
   // Signals for state management
@@ -59,21 +59,21 @@ export class LuckyDrawService {
   drawSessionId = signal<number>(0);
   customBackground = signal<string | null>(null);
   participantsRaw = signal<string>('');
-  
+
   settings = signal<Settings>({
     spinDuration: 10,
     digitDelay: 2,
     prizes: [
-      { name: 'giải đặc biệt', icon: '🏆', count: 1, reward: '' },
-      { name: 'giải nhất', icon: '🥇', count: 1, reward: '' },
-      { name: 'giải nhì', icon: '🥈', count: 1, reward: '' },
-      { name: 'giải ba', icon: '🥉', count: 1, reward: '' }
-    ]
+      { name: 'Grand Prize', icon: '🏆', count: 1, reward: '' },
+      { name: 'First Prize', icon: '🥇', count: 1, reward: '' },
+      { name: 'Second Prize', icon: '🥈', count: 1, reward: '' },
+      { name: 'Third Prize', icon: '🥉', count: 1, reward: '' },
+    ],
   });
 
   constructor() {
     this.loadFromStorage();
-    
+
     // Automatically update prize names when language changes
     effect(() => {
       this.translation.currentLang(); // dependency registration
@@ -86,7 +86,7 @@ export class LuckyDrawService {
     const currentPrizeName = this.currentPrize();
     let updated = false;
 
-    currentPrizes.forEach(p => {
+    currentPrizes.forEach((p) => {
       const key = this.translation.getPrizeKey(p.name);
       if (key) {
         const newName = this.translation.t()[key];
@@ -112,7 +112,8 @@ export class LuckyDrawService {
     const p = this.storage.getData<Participant[]>(this.STORAGE_KEYS.PARTICIPANTS) || [];
     const r = this.storage.getData<Participant[]>(this.STORAGE_KEYS.REMAINING) || [...p];
     const w = this.storage.getData<Winner[]>(this.STORAGE_KEYS.WINNERS) || [];
-    const pdc = this.storage.getData<Record<string, number>>(this.STORAGE_KEYS.PRIZE_DRAW_COUNT) || {};
+    const pdc =
+      this.storage.getData<Record<string, number>>(this.STORAGE_KEYS.PRIZE_DRAW_COUNT) || {};
     const dsid = this.storage.getData<number>(this.STORAGE_KEYS.DRAW_SESSION_ID) || 0;
     const s = this.storage.getData<Settings>(this.STORAGE_KEYS.SETTINGS);
     const bg = this.storage.getData<string>(this.STORAGE_KEYS.BACKGROUND);
@@ -132,7 +133,7 @@ export class LuckyDrawService {
         { name: this.translation.t().grandPrize, icon: '🏆', count: 1, reward: '' },
         { name: this.translation.t().firstPrize, icon: '🥇', count: 1, reward: '' },
         { name: this.translation.t().secondPrize, icon: '🥈', count: 1, reward: '' },
-        { name: this.translation.t().thirdPrize, icon: '🥉', count: 1, reward: '' }
+        { name: this.translation.t().thirdPrize, icon: '🥉', count: 1, reward: '' },
       ];
       this.settings.update((curr: Settings) => ({ ...curr, prizes: defaultPrizes }));
       this.prizes.set(defaultPrizes);
@@ -158,24 +159,30 @@ export class LuckyDrawService {
   }
 
   setParticipants(text: string) {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const lines = text
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
     const newParticipants: Participant[] = [];
-    
-    lines.forEach(line => {
+
+    lines.forEach((line) => {
       // Pattern for range: "1-2000" or "1 -> 2000" or "1 => 2000"
       const rangePattern = /^(\d+)\s*(?:-|=>|->)\s*(\d+)$/;
       const rangeMatch = line.match(rangePattern);
-      
+
       if (rangeMatch) {
         const fromNumber = parseInt(rangeMatch[1]);
         const toNumber = parseInt(rangeMatch[2]);
         if (fromNumber <= toNumber) {
           for (let i = fromNumber; i <= toNumber; i++) {
-            newParticipants.push({ code: String(i), name: this.translation.t().defaultParticipant });
+            newParticipants.push({
+              code: String(i),
+              name: this.translation.t().defaultParticipant,
+            });
           }
         }
       } else {
-        const parts = line.split('-').map(p => p.trim());
+        const parts = line.split('-').map((p) => p.trim());
         if (parts.length >= 2) {
           newParticipants.push({ code: parts[0], name: parts.slice(1).join(' - ') });
         } else {
@@ -189,12 +196,12 @@ export class LuckyDrawService {
     this.remainingParticipants.set([...newParticipants]);
     this.winners.set([]);
     this.prizeDrawCount.set({});
-    
+
     // Ensure currentPrize is set if we have prizes
     if (this.prizes().length > 0 && !this.currentPrize()) {
       this.currentPrize.set(this.prizes()[0].name);
     }
-    
+
     this.saveToStorage();
   }
 
@@ -204,12 +211,12 @@ export class LuckyDrawService {
 
     const randomIndex = Math.floor(Math.random() * remaining.length);
     const p = remaining.splice(randomIndex, 1)[0];
-    
+
     const winner: Winner = {
       code: p.code,
       name: p.name,
       prize: this.currentPrize() || 'Default',
-      drawId: this.drawSessionId()
+      drawId: this.drawSessionId(),
     };
 
     this.remainingParticipants.set(remaining);
@@ -219,9 +226,9 @@ export class LuckyDrawService {
 
   confirmWinners(winners: Winner[]) {
     this.winners.update((w: Winner[]) => [...w, ...winners]);
-    
+
     const pdc = { ...this.prizeDrawCount() };
-    winners.forEach(w => {
+    winners.forEach((w) => {
       pdc[w.prize] = (pdc[w.prize] || 0) + 1;
     });
     this.prizeDrawCount.set(pdc);
@@ -235,7 +242,10 @@ export class LuckyDrawService {
   }
 
   addNewPrize() {
-    this.prizes.update((p: Prize[]) => [...p, { name: this.translation.t().newPrizeName, icon: '🎁', count: 1, reward: '' }]);
+    this.prizes.update((p: Prize[]) => [
+      ...p,
+      { name: this.translation.t().newPrizeName, icon: '🎁', count: 1, reward: '' },
+    ]);
     this.updateSettingsPrizes();
   }
 
