@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://wheelofwow.vercel.app/wheelofwow/sitemap.xml
+Sitemap: https://wheelofwow.vercel.app/sitemap.xml
