@@ -57,8 +57,15 @@ export class Header {
   }
 
   async logout() {
-    await this.supabase.signOut();
+    // Optimistic update
+    this.user.set(null);
+    this.isAdmin.set(false);
     this.closeMenu();
-    window.location.reload(); // Simple reload to clear state for now
+
+    // Perform background signout
+    await this.supabase.signOut();
+
+    // No need to reload, just ensure router is at home if needed, or stay where we are if public
+    // window.location.reload();
   }
 }

@@ -19,10 +19,6 @@ export class SupabaseService {
     });
   }
 
-  async signOut() {
-    return this.supabase.auth.signOut();
-  }
-
   async getSession(): Promise<Session | null> {
     const { data } = await this.supabase.auth.getSession();
     return data.session;
@@ -35,14 +31,7 @@ export class SupabaseService {
     return user;
   }
 
-  async isAdmin(): Promise<boolean> {
-    const user = await this.getUser();
-    if (!user) return false;
-
-    const { data } = await this.supabase.from('profiles').select('role').eq('id', user.id).single();
-
-    return data?.role === 'admin' || data?.role === 'super_admin';
-  }
+  private profileCache: any = null;
 
   authChanges(callback: (event: any, session: Session | null) => void) {
     return this.supabase.auth.onAuthStateChange(callback);
@@ -50,20 +39,44 @@ export class SupabaseService {
 
   // Profile Methods
   async getProfile() {
+    if (this.profileCache) return { data: this.profileCache, error: null };
+
     const user = await this.getUser();
     if (!user) return null;
 
-    return this.supabase.from('profiles').select('*').eq('id', user.id).single();
+    const { data, error } = await this.supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    if (data) this.profileCache = data;
+
+    return { data, error };
   }
 
   async updateProfile(updates: any) {
     const user = await this.getUser();
     if (!user) return null;
 
-    return this.supabase
+    const { data, error } = await this.supabase
       .from('profiles')
       .upsert({ ...updates, id: user.id, updated_at: new Date() })
-      .select();
+      .select()
+      .single();
+
+    if (data) this.profileCache = data;
+
+    return { data, error };
+  }
+
+  async isAdmin(): Promise<boolean> {
+    const { data } = (await this.getProfile()) || {};
+    return data?.role === 'admin' || data?.role === 'super_admin';
+  }
+
+  async signOut() {
+    this.profileCache = null;
+    return this.supabase.auth.signOut();
   }
 
   // Lucky Draw Methods
@@ -93,8 +106,41 @@ export class SupabaseService {
   }
 
   // Admin Methods
-  async getProfiles() {
-    return this.supabase.from('profiles').select('*').order('created_at', { ascending: false });
+  async getProfiles(
+    page: number = 1,
+    perPage: number = 20,
+    search: string = '',
+    sortBy: string = 'created_at',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
+    let query = this.supabase.from('profiles').select('*', { count: 'exact' });
+
+    if (search) {
+      query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
+    }
+
+    if (sortBy) {
+      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+    }
+
+    const start = (page - 1) * perPage;
+    const end = start + perPage - 1;
+
+    const { data, count, error } = await query.range(start, end);
+
+    return { data, count, error };
+  }
+
+  async updateUser(userId: string, updates: any) {
+    return this.supabase.from('profiles').update(updates).eq('id', userId).select().single();
+  }
+
+  async toggleUserLock(userId: string, isLocked: boolean) {
+    // Assuming there is a 'locked' column or 'status' column in profiles.
+    // If not, we might need to add it to the schema, but for now let's assume 'is_locked'.
+    // If the schema uses a different field (e.g. banning via auth.users), it requires service_role key which we might not have here directly exposed safely.
+    // We will stick to updating the profile table for application-level locking.
+    return this.updateUser(userId, { is_locked: isLocked });
   }
 
   async getSystemSetting(key: string) {
@@ -121,5 +167,10 @@ export class SupabaseService {
       .from('system_settings')
       .upsert({ key, value, updated_at: new Date() })
       .select();
+  }
+
+  async getSubscriptionTier(): Promise<string> {
+    const profile = await this.getProfile();
+    return profile?.data?.subscription_tier || 'free';
   }
 }

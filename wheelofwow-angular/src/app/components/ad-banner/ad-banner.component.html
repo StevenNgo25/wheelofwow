@@ -1,0 +1,18 @@
+<div *ngIf="isVisible()" class="ad-container" [ngClass]="position">
+  <div class="ad-wrapper">
+    <!-- Close button only for fixed positions -->
+    <button *ngIf="position !== 'inline'" class="btn-close-ad" (click)="closeAd()">×</button>
+
+    <ins
+      class="adsbygoogle"
+      style="display: block"
+      [attr.data-ad-client]="clientId()"
+      [attr.data-ad-slot]="adSlotId()"
+      [attr.data-ad-format]="position === 'inline' ? 'auto' : null"
+      [attr.data-full-width-responsive]="position === 'inline'"
+      [style.width]="position.includes('sidebar') ? '160px' : null"
+      [style.height]="position.includes('sidebar') ? '600px' : null"
+    >
+    </ins>
+  </div>
+</div>

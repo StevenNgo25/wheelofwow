@@ -19,6 +19,9 @@ export class AdsManagementComponent {
     slots: {
       home_banner: '',
       result_popup: '',
+      footer: '',
+      sidebar_left: '',
+      sidebar_right: '',
     },
   };
 

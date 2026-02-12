@@ -6,8 +6,19 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { existsSync } from 'node:fs';
 
-const browserDistFolder = join(import.meta.dirname, '../browser');
+const serverDistFolder = import.meta.dirname;
+let browserDistFolder = join(serverDistFolder, '../browser');
+
+// Fallback for dev mode where server.ts is run from src and dist is in project root
+const devDistFolder = join(serverDistFolder, '../dist/wheelofwow-angular/browser');
+if (!existsSync(browserDistFolder) && existsSync(devDistFolder)) {
+  browserDistFolder = devDistFolder;
+}
+
+console.log('Server Dist Folder:', serverDistFolder);
+console.log('Browser Dist Folder:', browserDistFolder);
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -41,10 +52,34 @@ app.use(
 app.use((req, res, next) => {
   angularApp
     .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
-    )
+    .then((response) => (response ? writeResponseToNodeResponse(response, res) : next()))
     .catch(next);
+});
+
+/**
+ * Serve index.html for CSR fallback when SSR fails or skips
+ */
+/**
+ * Serve index.html for CSR fallback when SSR fails or skips
+ */
+app.use((req, res, next) => {
+  const indexHtml = join(browserDistFolder, 'index.html');
+  const indexCsr = join(browserDistFolder, 'index.csr.html');
+
+  // Check if files exist on disk (false in 'ng serve' dev mode)
+  const fallbackFile = existsSync(indexCsr) ? indexCsr : existsSync(indexHtml) ? indexHtml : null;
+
+  if (fallbackFile) {
+    res.sendFile(fallbackFile, (err) => {
+      if (err) {
+        console.error('Error serving fallback file:', err);
+        next(err);
+      }
+    });
+  } else {
+    // In dev mode, files are in memory. Delegate to the next middleware (Angular Dev Server).
+    next();
+  }
 });
 
 /**

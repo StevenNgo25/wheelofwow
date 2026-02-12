@@ -37,6 +37,36 @@
     </div>
   </div>
 
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Sticky Footer (Dưới cùng)</label>
+      <input
+        type="text"
+        [(ngModel)]="config.slots.footer"
+        placeholder="Slot ID"
+        [disabled]="!config.enabled"
+      />
+    </div>
+    <div class="form-group">
+      <label>Sidebar Trái (Desktop)</label>
+      <input
+        type="text"
+        [(ngModel)]="config.slots.sidebar_left"
+        placeholder="Slot ID"
+        [disabled]="!config.enabled"
+      />
+    </div>
+    <div class="form-group">
+      <label>Sidebar Phải (Desktop)</label>
+      <input
+        type="text"
+        [(ngModel)]="config.slots.sidebar_right"
+        placeholder="Slot ID"
+        [disabled]="!config.enabled"
+      />
+    </div>
+  </div>
+
   <div class="actions">
     <button class="btn-save" (click)="saveConfig()" [disabled]="loading()">
       {{ loading() ? 'Đang lưu...' : 'Lưu cấu hình' }}
