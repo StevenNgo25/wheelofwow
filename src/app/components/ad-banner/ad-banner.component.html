@@ -8,6 +8,7 @@
       style="display: block"
       [attr.data-ad-client]="clientId()"
       [attr.data-ad-slot]="adSlotId()"
+      [attr.data-ad-test]="isTestMode ? 'on' : null"
       [attr.data-ad-format]="position === 'inline' ? 'auto' : null"
       [attr.data-full-width-responsive]="position === 'inline'"
       [style.width]="position.includes('sidebar') ? '160px' : null"

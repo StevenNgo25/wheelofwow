@@ -1,6 +1,7 @@
 import { Component, Input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdsService } from '../../services/ads.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-ad-banner',
@@ -18,6 +19,7 @@ export class AdBannerComponent {
   isVisible = signal(false);
   adSlotId = signal('');
   clientId = signal('');
+  isTestMode = !environment.production;
 
   constructor() {
     effect(
