@@ -7,22 +7,6 @@ import { languageGuard } from './auth/guards/language.guard';
 
 export const routes: Routes = [
   {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'vi',
-  },
-  {
-    path: ':lang',
-    canActivate: [languageGuard],
-    loadComponent: () =>
-      import('./layout/main-layout.component').then((m) => m.MainLayoutComponent),
-    children: [
-      { path: '', component: HomeComponent },
-      { path: 'guide', component: UserGuideComponent },
-      { path: 'pricing', component: PricingComponent },
-    ],
-  },
-  {
     path: 'admin',
     loadComponent: () =>
       import('./admin/layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
@@ -49,5 +33,21 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: 'vi' },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'en',
+  },
+  {
+    path: ':lang',
+    canActivate: [languageGuard],
+    loadComponent: () =>
+      import('./layout/main-layout.component').then((m) => m.MainLayoutComponent),
+    children: [
+      { path: '', component: HomeComponent },
+      { path: 'guide', component: UserGuideComponent },
+      { path: 'pricing', component: PricingComponent },
+    ],
+  },
+  { path: '**', redirectTo: 'en' },
 ];
