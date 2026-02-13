@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 
 export const TRANSLATIONS: any = {
   vi: {
@@ -206,13 +207,28 @@ export const TRANSLATIONS: any = {
 export class TranslationService {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
+  private router = inject(Router);
 
   currentLang = signal<'vi' | 'en'>('en');
 
   t = computed(() => TRANSLATIONS[this.currentLang()]);
 
   setLang(lang: 'vi' | 'en') {
-    this.currentLang.set(lang);
+    const currentUrl = this.router.url;
+    // Assuming the URL structure is /:lang/...
+    // We split by '/' and replace the second element (since strict slash is /)
+    // validation: check if first segment is a lang
+    const tree = this.router.parseUrl(currentUrl);
+    const g = tree.root.children['primary'];
+
+    if (g && g.segments.length > 0) {
+      g.segments[0].path = lang;
+      this.router.navigateByUrl(tree);
+    } else {
+      // Fallback if structure is weird, just go root
+      this.router.navigate([lang]);
+    }
+
     if (this.isBrowser) {
       localStorage.setItem('luckydraw_language', lang);
     }

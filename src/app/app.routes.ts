@@ -3,10 +3,17 @@ import { HomeComponent } from './home/home.component';
 import { UserGuideComponent } from './pages/user-guide/user-guide.component';
 import { PricingComponent } from './pages/pricing/pricing.component';
 import { adminGuard } from './auth/guards/admin.guard';
+import { languageGuard } from './auth/guards/language.guard';
 
 export const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    redirectTo: 'vi',
+  },
+  {
+    path: ':lang',
+    canActivate: [languageGuard],
     loadComponent: () =>
       import('./layout/main-layout.component').then((m) => m.MainLayoutComponent),
     children: [
@@ -42,5 +49,5 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'vi' },
 ];
